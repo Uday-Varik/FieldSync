@@ -1,5 +1,41 @@
 # FieldSync — Phase 0 Manager Audit (Quality & Impact Review)
 
+## Update 2026-10-28 — Phase 0 DONE (live run verified)
+
+The original 2026-10-27 verdict below was NO-GO until the external
+blockers were cleared. They are now cleared, with two documented
+exceptions that do not block Phase 0 itself:
+
+- **Branch protection:** DONE 2026-10-28, rule 85465258 for `main`
+  (PR required, approvals OFF, status checks OFF, no bypass).
+- **Live run:** DONE 2026-10-28 in this VM, with deviations
+  documented in docs/13-NEXT-STEPS.md: system Postgres 16 + Redis 7
+  via apt (Docker unavailable here), Prisma engines via a local
+  curl mirror (Node's proxy download kept resetting).
+  - `prisma validate`: passes, engine-verified.
+  - `prisma migrate dev --name init`: passes, migration
+    `20261028072140_init` created by Prisma, client generated.
+    First attempt failed P3014 (shadow DB); fixed by granting
+    the local DB user CREATEDB.
+  - Seed with `ALLOW_DEMO_SEED=true`: passes, verified in the DB:
+    5 users, 18 jobs (SCHEDULED 5, EN_ROUTE 2, ON_SITE 1,
+    IN_PROGRESS 3, ON_HOLD 1, COMPLETED 4, CANCELLED 2;
+    unassigned 3; urgent 2; current signatures 1; job sheets 1).
+  - Typecheck passes for web, API, and shared.
+  - Dev servers: web :3000 returns 200; API :3001 starts and
+    responds (404 for `/` is expected — no routes yet).
+  - Scaffold bug found by the live run and fixed in this PR:
+    `@nestjs/platform-express` was missing from
+    `apps/api/package.json`, causing "No driver (HTTP) has been
+    selected".
+- **Exceptions, still outstanding for Phase 1, not Phase 0:**
+  Husky pre-commit is not installed yet, and real Clerk keys are
+  still needed for Phase 1 auth. No real keys are in git.
+
+Phase 0 is therefore marked DONE. Phase 1 may start, via PRs only.
+
+---
+
 **Auditor role:** Manager obsessed with quality and impact.
 **Date:** 2026-10-27
 **Scope audited:** All planning docs (00–11) + scaffold in `apps/`, `packages/`, root configs, Docker Compose, Prisma schema, seed script.
