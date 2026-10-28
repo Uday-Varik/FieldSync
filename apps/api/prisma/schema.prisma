@@ -1,0 +1,274 @@
+// FieldSync Prisma schema — matches docs/03-DATA-MODEL.md (Phase 0 scaffold)
+// Generator + datasource are set here; run `npx prisma migrate dev` after
+// DATABASE_URL is set. Do not edit a merged migration — add a new one.
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+enum Role {
+  ADMIN
+  DISPATCHER
+  TECHNICIAN
+}
+
+enum JobStatus {
+  SCHEDULED
+  EN_ROUTE
+  ON_SITE
+  IN_PROGRESS
+  ON_HOLD
+  COMPLETED
+  CANCELLED
+}
+
+enum Priority {
+  LOW
+  NORMAL
+  HIGH
+  URGENT
+}
+
+enum PhotoStatus {
+  PENDING
+  READY
+  FAILED
+}
+
+enum OutboxStatus {
+  APPLIED
+  CONFLICT_RESOLVED
+  REJECTED
+}
+
+enum InviteStatus {
+  PENDING
+  ACCEPTED
+  EXPIRED
+  REVOKED
+}
+
+enum JobSheetStatus {
+  QUEUED
+  READY
+  FAILED
+}
+
+model Company {
+  id                String   @id @default(uuid())
+  name              String
+  timezone          String
+  workingHoursStart String?
+  workingHoursEnd   String?
+  address           String?
+  phone             String?
+  createdAt         DateTime @default(now())
+  updatedAt         DateTime @updatedAt
+  users             User[]
+  jobs              Job[]
+  invites           Invite[]
+}
+
+model User {
+  id          String   @id @default(uuid())
+  clerkUserId String   @unique
+  email       String
+  name        String
+  phone       String?
+  companyId   String
+  company     Company  @relation(fields: [companyId], references: [id])
+  role        Role
+  isActive    Boolean  @default(true)
+  avatarUrl   String?
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+  assignedJobs Job[]   @relation("AssignedTechnician")
+
+  @@index([companyId, role])
+}
+
+model Invite {
+  id             String       @id @default(uuid())
+  companyId      String
+  company        Company      @relation(fields: [companyId], references: [id])
+  email          String
+  role           Role
+  tokenHash      String       @unique
+  status         InviteStatus @default(PENDING)
+  expiresAt      DateTime
+  invitedById    String?
+  acceptedUserId String?
+  createdAt      DateTime     @default(now())
+  updatedAt      DateTime     @updatedAt
+
+  @@index([companyId, status])
+}
+
+model Job {
+  id                     String    @id @default(uuid())
+  companyId              String
+  company                Company   @relation(fields: [companyId], references: [id])
+  title                  String
+  description            String?
+  customerName           String
+  customerPhone          String?
+  customerEmail          String?
+  addressLine1           String
+  addressLine2           String?
+  city                   String
+  state                  String
+  postalCode             String
+  country                String    @default("US")
+  lat                    Float?
+  lng                    Float?
+  scheduledDate          DateTime  @db.Date
+  scheduledWindowStart   String
+  scheduledWindowEnd     String
+  status                 JobStatus @default(SCHEDULED)
+  previousStatus         JobStatus?
+  priority               Priority  @default(NORMAL)
+  jobType                String?
+  tags                   String[]
+  assignedTechnicianId   String?
+  assignedTechnician     User?     @relation("AssignedTechnician", fields: [assignedTechnicianId], references: [id])
+  internalNotes          String?
+  customerNotes          String?
+  startedAt              DateTime?
+  completedAt            DateTime?
+  cancelledAt            DateTime?
+  cancelReason           String?
+  reopenReason           String?
+  version                Int       @default(1)
+  lastEditedById         String?
+  lastEditedAt           DateTime?
+  createdAt              DateTime  @default(now())
+  updatedAt              DateTime  @updatedAt
+  checklist              ChecklistItem[]
+  photos                 Photo[]
+  signatures             Signature[]
+  activity               JobActivity[]
+  syncMutations          SyncMutation[]
+  jobSheet               JobSheet?
+  noteDocument           JobNoteDocument?
+
+  @@index([companyId, scheduledDate, status])
+  @@index([companyId, assignedTechnicianId, scheduledDate])
+  @@index([companyId, status])
+}
+
+model ChecklistItem {
+  id          String   @id @default(uuid())
+  jobId       String
+  job         Job      @relation(fields: [jobId], references: [id])
+  label       String
+  isChecked   Boolean  @default(false)
+  checkedById String?
+  checkedAt   DateTime?
+  sortOrder   Int      @default(0)
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  @@index([jobId, sortOrder])
+}
+
+model JobNoteDocument {
+  id          String   @id @default(uuid())
+  jobId       String   @unique
+  job         Job      @relation(fields: [jobId], references: [id])
+  yjsSnapshot Bytes?
+  updatedById String?
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+}
+
+model Photo {
+  id               String      @id @default(uuid())
+  jobId            String
+  job              Job         @relation(fields: [jobId], references: [id])
+  uploadedById     String
+  storageKey       String
+  originalFilename String
+  caption          String?
+  lat              Float?
+  lng              Float?
+  takenAt          DateTime?
+  status           PhotoStatus @default(PENDING)
+  thumbnailKey     String?
+  fileSizeBytes    Int?
+  width            Int?
+  height           Int?
+  deletedAt        DateTime?
+  createdAt        DateTime    @default(now())
+  updatedAt        DateTime    @updatedAt
+
+  @@index([jobId, takenAt])
+}
+
+model Signature {
+  // Multiple signatures per job are allowed, exactly one current.
+  // On Admin reopen, the previous signature is superseded (isCurrent=false,
+  // supersededAt set) so a re-completion can capture a new signature.
+  // The old unique-on-jobId design broke reopen + re-complete — do not restore it.
+  id           String    @id @default(uuid())
+  jobId        String
+  job          Job       @relation(fields: [jobId], references: [id])
+  storageKey   String
+  signedByName String
+  signedAt     DateTime
+  capturedById String
+  isCurrent    Boolean   @default(true)
+  supersededAt DateTime?
+  createdAt    DateTime  @default(now())
+  updatedAt    DateTime  @updatedAt
+
+  @@index([jobId, isCurrent])
+}
+
+model JobActivity {
+  id        String   @id @default(uuid())
+  jobId     String
+  job       Job      @relation(fields: [jobId], references: [id])
+  actorId   String
+  action    String
+  field     String?
+  fromValue Json?
+  toValue   Json?
+  metadata  Json?
+  createdAt DateTime @default(now())
+
+  @@index([jobId, createdAt])
+}
+
+model SyncMutation {
+  id                 String       @id @default(uuid())
+  companyId          String
+  userId             String
+  clientMutationId   String
+  jobId              String
+  job                Job          @relation(fields: [jobId], references: [id])
+  mutationType       String
+  payload            Json
+  result             OutboxStatus
+  serverVersionAfter Int
+  conflictDetails    Json?
+  createdAt          DateTime     @default(now())
+
+  @@unique([userId, clientMutationId])
+  @@index([jobId, createdAt])
+}
+
+model JobSheet {
+  id          String         @id @default(uuid())
+  jobId       String         @unique
+  job         Job            @relation(fields: [jobId], references: [id])
+  storageKey  String?
+  status      JobSheetStatus @default(QUEUED)
+  generatedAt DateTime?
+  error       String?
+  createdAt   DateTime       @default(now())
+  updatedAt   DateTime       @updatedAt
+}

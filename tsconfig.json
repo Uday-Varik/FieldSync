@@ -1,0 +1,1 @@
+{"compilerOptions":{"esModuleInterop":true,"forceConsistentCasingInFileNames":true,"isolatedModules":true,"module":"ESNext","moduleResolution":"bundler","noUncheckedIndexedAccess":false,"resolveJsonModule":true,"skipLibCheck":true,"strict":true,"target":"ES2022"},"exclude":["node_modules","apps/*/dist","apps/*/.next"]}

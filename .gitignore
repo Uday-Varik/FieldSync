@@ -1,0 +1,18 @@
+# Dependencies
+node_modules/
+# Build outputs
+.next/
+dist/
+out/
+# Env — NEVER commit real keys
+.env
+.env.local
+.env.*.local
+# Prisma
+*.db
+# OS / editor
+.DS_Store
+.idea/
+.vscode/
+# Logs
+*.log
