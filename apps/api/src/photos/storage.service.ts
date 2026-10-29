@@ -60,4 +60,19 @@ export class StorageService {
     const { client, bucket } = this.requireConfigured();
     return getSignedUrl(client, new GetObjectCommand({ Bucket: bucket, Key: key }), { expiresIn: 3600 });
   }
+
+  async downloadBuffer(key: string): Promise<Buffer> {
+    const { client, bucket } = this.requireConfigured();
+    const res = await client.send(new GetObjectCommand({ Bucket: bucket, Key: key }));
+    const body: any = res.Body;
+    if (body?.transformToByteArray) return Buffer.from(await body.transformToByteArray());
+    const chunks: Buffer[] = [];
+    for await (const chunk of body) chunks.push(Buffer.from(chunk));
+    return Buffer.concat(chunks);
+  }
+
+  async uploadBuffer(key: string, buffer: Buffer, contentType: string): Promise<void> {
+    const { client, bucket } = this.requireConfigured();
+    await client.send(new PutObjectCommand({ Bucket: bucket, Key: key, Body: buffer, ContentType: contentType }));
+  }
 }
