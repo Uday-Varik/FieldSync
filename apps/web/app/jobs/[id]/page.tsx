@@ -6,6 +6,7 @@ import TechnicianStatusBar from '../../../components/TechnicianStatusBar';
 import ChecklistToggles from '../../../components/ChecklistToggles';
 import JobNotesForm from '../../../components/JobNotesForm';
 import SignaturePad from '../../../components/SignaturePad';
+import JobSheetDownload from '../../../components/JobSheetDownload';
 
 // Phase 2 mobile job detail: status action bar, call/navigate,
 // checklist toggles, and plain-text notes (Yjs comes in Phase 3).
@@ -95,6 +96,7 @@ export default async function JobDetailPage({ params }: { params: { id: string }
         <p>No signature yet.</p>
       )}
       {canToggle && job.status !== 'COMPLETED' && job.status !== 'CANCELLED' && <SignaturePad jobId={job.id} />}
+      {job.status === 'COMPLETED' && <JobSheetDownload jobId={job.id} />}
 
       {role && role !== 'TECHNICIAN' && <JobActions jobId={job.id} status={job.status} role={role} />}
 

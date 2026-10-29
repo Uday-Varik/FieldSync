@@ -1,6 +1,7 @@
 import { HttpException, HttpStatus, Injectable } from '@nestjs/common';
 import type { JobStatus, Prisma } from '@prisma/client';
 import { PrismaService } from '../prisma/prisma.service';
+import { JobSheetService } from './job-sheet.service';
 import { canTransition } from './job-state-machine';
 import { CreateJobDto } from './dto/create-job.dto';
 import { UpdateJobDto } from './dto/update-job.dto';
@@ -48,7 +49,10 @@ export interface JobListQuery {
  */
 @Injectable()
 export class JobsService {
-  constructor(private readonly prisma: PrismaService) {}
+  constructor(
+    private readonly prisma: PrismaService,
+    private readonly jobSheet: JobSheetService = new JobSheetService(),
+  ) {}
 
   private async findScoped(companyId: string, jobId: string, user: AuthUser) {
     const job = await this.prisma.job.findFirst({
@@ -315,6 +319,20 @@ export class JobsService {
       await this.activity(tx, job.id, user.dbUser!.id, 'REOPENED', 'COMPLETED', 'IN_PROGRESS', { reason });
       return updated;
     });
+  }
+
+  async jobSheetPdf(user: AuthUser, jobId: string) {
+    const job = await this.findScoped(user.dbUser!.companyId, jobId, user);
+    if (job.status !== 'COMPLETED') {
+      throw invalidState('Job sheet is available only for completed jobs');
+    }
+    const pdf = await this.jobSheet.generate(job);
+    await this.prisma.jobSheet.upsert({
+      where: { jobId: job.id },
+      create: { jobId: job.id, status: 'READY', generatedAt: new Date() },
+      update: { status: 'READY', generatedAt: new Date() },
+    });
+    return pdf;
   }
 
   async activityList(user: AuthUser, jobId: string, page: number, limit: number) {
