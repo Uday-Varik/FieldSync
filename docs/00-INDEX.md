@@ -1,7 +1,7 @@
 # FieldSync — Planning Pack Index
 
 **Project:** FieldSync — offline-first, real-time dispatch and job tracking for field service teams (electricians, HVAC, solar installers, plumbers).
-**Status:** PLANNING ONLY — no code yet, by the user's instruction on 2026-10-27.
+**Status:** BUILDING — Phase 0 partial, Phase 1 API core merged (PR #2, #3, #7, #8, #6). See `16-PROJECT-TRACKING.md` for the current task status; the original planning-only note is superseded by the build.
 **Chosen from:** Project 1 of the 3 standout portfolio projects (FieldSync / ClauseWise / FixMap).
 **Goal of this pack:** Anyone (including a future build session) can start building without re-deciding scope, stack, data model, or sync rules.
 
@@ -26,6 +26,8 @@
 | 08 | `08-IMPLEMENTATION-PLAN.md` | 5 phases, tasks, estimates, definition of done, demo script |
 | 09 | `09-TESTING-DEPLOYMENT.md` | Test pyramid, sync test cases, CI/CD, environments, monitoring |
 | 10 | `10-RISKS-OPEN-QUESTIONS.md` | Risks, mitigations, decisions still open |
+| 15 | `15-DECISIONS.md` | Every deviation from this pack, with date + reason |
+| 16 | `16-PROJECT-TRACKING.md` | One task per plan task, phase-labelled, DoD/test status (PROJECTS.md alternative to GitHub Issues) |
 
 ## Locked decisions (do not change without noting why)
 
