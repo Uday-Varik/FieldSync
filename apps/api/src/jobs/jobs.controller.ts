@@ -1,4 +1,5 @@
-import { Body, Controller, Get, Param, Patch, Post, Query, UseGuards } from '@nestjs/common';
+import { Body, Controller, Get, Param, Patch, Post, Query, Res, UseGuards } from '@nestjs/common';
+import type { Response } from 'express';
 import { Role } from '@prisma/client';
 import { JobsService } from './jobs.service';
 import { ClerkAuthGuard } from '../auth/clerk-auth.guard';
@@ -40,6 +41,14 @@ export class JobsController {
   @Get(':id')
   get(@CurrentUser() user: AuthUser, @Param('id') id: string) {
     return this.jobs.get(user, id);
+  }
+
+  @Get(':id/job-sheet')
+  async jobSheet(@CurrentUser() user: AuthUser, @Param('id') id: string, @Res() res: Response) {
+    const pdf = await this.jobs.jobSheetPdf(user, id);
+    res.setHeader('Content-Type', 'application/pdf');
+    res.setHeader('Content-Disposition', `attachment; filename="job-sheet-${id}.pdf"`);
+    res.send(pdf);
   }
 
   @Get(':id/activity')
