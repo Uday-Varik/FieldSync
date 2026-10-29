@@ -13,8 +13,9 @@ import { AuthModule } from './auth/auth.module';
 import { CompaniesModule } from './companies/companies.module';
 import { JobsModule } from './jobs/jobs.module';
 import { ChecklistModule } from './checklist/checklist.module';
+import { PhotosModule } from './photos/photos.module';
 
 @Module({
-  imports: [PrismaModule, AuthModule, CompaniesModule, JobsModule, ChecklistModule],
+  imports: [PrismaModule, AuthModule, CompaniesModule, JobsModule, ChecklistModule, PhotosModule],
 })
 export class AppModule {}
