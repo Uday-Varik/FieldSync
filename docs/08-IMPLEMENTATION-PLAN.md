@@ -7,22 +7,22 @@ Total MVP estimate: **5–7 weeks part-time (15–20 hrs/week)**, or **3–4 wee
 ## Phase 0 — Setup & design (Week 1, ~10–12 hrs)
 
 Tasks:
-- [ ] Monorepo scaffold: `apps/web` (Next.js), `apps/api` (NestJS), `packages/shared` (types/constants).
-- [ ] Tooling: TypeScript strict, ESLint, Prettier, Husky pre-commit (lint + typecheck), GitHub repo with branch protection on main.
-- [ ] Docker Compose: Postgres + Redis locally. Clerk dev project. R2/S3 dev bucket.
-- [ ] Prisma schema v1 (Company, User, Invite, Job, ChecklistItem, Photo, Signature, JobActivity, SyncMutation, JobSheet, JobNoteDocument) + first migration + seed script (demo company, see data model).
-- [ ] Low-fidelity wireframes for S20/S21 (technician mobile) and S11 (dispatcher board) — paper or Figma, reviewed before coding screens.
-- [ ] README skeleton: product, architecture diagram, how to run locally, demo logins (seed only).
+- [x] Monorepo scaffold: `apps/web` (Next.js), `apps/api` (NestJS), `packages/shared` (types/constants).
+- [~] Tooling: TypeScript strict, ESLint, Prettier, Husky pre-commit (lint + typecheck), GitHub repo with branch protection on main. (Husky outstanding — see 16-PROJECT-TRACKING.md; branch protection done.)
+- [~] Docker Compose: Postgres + Redis locally. Clerk dev project. R2/S3 dev bucket. (Compose file exists; live run used apt Postgres/Redis in this VM; Clerk + R2 outstanding.)
+- [x] Prisma schema v1 (Company, User, Invite, Job, ChecklistItem, Photo, Signature, JobActivity, SyncMutation, JobSheet, JobNoteDocument) + first migration + seed script (demo company, see data model).
+- [x] Low-fidelity wireframes for S20/S21 (technician mobile) and S11 (dispatcher board) — paper or Figma, reviewed before coding screens. (Text wireframes in 11-WIREFRAMES-PHASE0.md.)
+- [x] README skeleton: product, architecture diagram, how to run locally, demo logins (seed only).
 
 DoD: `docker compose up` + `npm run dev` runs web + API (npm workspaces — the plan previously said pnpm, corrected in the Phase 0 audit to match the scaffold and this environment, where pnpm is not installed); seed creates the full demo company (users + 18 jobs, see data model); README explains how to run it, includes the architecture diagram and demo logins; wireframes exist for mobile + board; tooling configs exist (TypeScript strict, ESLint, Prettier, .gitignore) and the shared package is non-empty. Git repo + branch protection and Clerk dev project creation are external setup steps, not code, and must be done by the user before Phase 0 can be called fully verified — see audit doc.
 
 ## Phase 1 — Auth, companies, jobs CRUD (Week 1–2, ~15 hrs)
 
 Tasks:
-- [ ] Clerk integration (web + API verification), company creation, invite flow, role guard, company scoping on every query.
-- [ ] Jobs CRUD + state machine (server-enforced) + assignment + search/filter + Admin-only reopen endpoint (`POST /jobs/:id/reopen`, reason required, signature supersede, job sheet update on re-completion).
-- [ ] Checklist CRUD.
-- [ ] Audit log (interceptor/event) for job actions.
+- [x] Clerk integration (web + API verification), company creation, invite flow, role guard, company scoping on every query. (PR #2, #3, #6; live verification pending real keys.)
+- [x] Jobs CRUD + state machine (server-enforced) + assignment + search/filter + Admin-only reopen endpoint (`POST /jobs/:id/reopen`, reason required, signature supersede, job sheet update on re-completion). (PR #7; job sheet update on re-completion is Phase 2 PDF work.)
+- [x] Checklist CRUD. (PR #8.)
+- [~] Audit log (interceptor/event) for job actions. (JobActivity rows exist on all major actions; global interceptor not yet done.)
 - [ ] Dispatcher dashboard + board (desktop, no map yet, no realtime yet — manual refresh is acceptable in this phase only, and must be replaced in Phase 3).
 - [ ] Technician My Day list (read-only in this phase, online only).
 
@@ -88,6 +88,8 @@ DoD: Live demo URL works for a stranger with seed logins; demo video exists; REA
 - Use GitHub Issues (or a simple PROJECTS.md) with one issue per task above, labelled by phase. Close an issue only when its DoD + tests are met.
 - Keep a `DECISIONS.md` log during build: every deviation from this pack, with date + reason. Interviewers love this, and it prevents "why did you do it that way?" from becoming a guess.
 - If stuck for > 2 hours on one task, timebox it, write the blocker in the issue, and move to an independent task — do not let sync or Yjs block the whole build.
+
+Tracking status, 2026-10-29: this plan's check marks now mirror `16-PROJECT-TRACKING.md`. Phase 0 is partial (Husky, Clerk dev project, R2 outstanding); Phase 1 is not done (board, My Day, audit interceptor outstanding). Deviations are logged in `15-DECISIONS.md`.
 
 ## What to build first if time is short
 
