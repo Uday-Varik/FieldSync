@@ -2,6 +2,7 @@ import { HttpException, HttpStatus, Injectable } from '@nestjs/common';
 import { randomUUID } from 'crypto';
 import { PrismaService } from '../prisma/prisma.service';
 import { StorageService } from './storage.service';
+import { ThumbnailQueue } from './thumbnail-queue';
 import type { AuthUser } from '../auth/auth-user';
 
 function notFound(): HttpException {
@@ -25,6 +26,7 @@ export class PhotosService {
   constructor(
     private readonly prisma: PrismaService,
     private readonly storage: StorageService = new StorageService(),
+    private readonly thumbnails: ThumbnailQueue = new ThumbnailQueue(),
   ) {}
 
   private async findScoped(companyId: string, jobId: string, user: AuthUser) {
@@ -66,6 +68,8 @@ export class PhotosService {
     await this.prisma.jobActivity.create({
       data: { jobId: job.id, actorId: user.dbUser!.id, action: 'PHOTO_ADDED', toValue: { photoId: photo.id } },
     });
+    // Best-effort: a missing Redis must not fail the confirm.
+    await this.thumbnails.enqueue(photo.id);
     return photo;
   }
 
@@ -78,14 +82,17 @@ export class PhotosService {
     const withUrls = [];
     for (const photo of photos) {
       let downloadUrl: string | null = null;
+      let thumbnailUrl: string | null = null;
       if (this.storage.configured) {
         try {
           downloadUrl = await this.storage.downloadUrl(photo.storageKey);
+          if (photo.thumbnailKey) thumbnailUrl = await this.storage.downloadUrl(photo.thumbnailKey);
         } catch {
           downloadUrl = null;
+          thumbnailUrl = null;
         }
       }
-      withUrls.push({ ...photo, downloadUrl });
+      withUrls.push({ ...photo, downloadUrl, thumbnailUrl });
     }
     return { data: withUrls };
   }

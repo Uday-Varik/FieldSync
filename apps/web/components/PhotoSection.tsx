@@ -29,20 +29,42 @@ export default function PhotoSection({ jobId, canUpload }: { jobId: string; canU
     load();
   }, [load]);
 
+  // Client compression (Phase 2 fix): shrink photos to at
+  // most 1600px on the long edge as JPEG 0.8 before upload,
+  // so phone photos do not hit storage at full resolution.
+  // Any failure falls back to the original file — a photo
+  // must not be lost because compression failed.
+  async function compress(file: File): Promise<Blob> {
+    try {
+      const bitmap = await createImageBitmap(file);
+      const scale = Math.min(1, 1600 / Math.max(bitmap.width, bitmap.height));
+      if (scale >= 1) return file;
+      const canvas = document.createElement('canvas');
+      canvas.width = Math.round(bitmap.width * scale);
+      canvas.height = Math.round(bitmap.height * scale);
+      canvas.getContext('2d')!.drawImage(bitmap, 0, 0, canvas.width, canvas.height);
+      const blob = await new Promise<Blob | null>((resolve) => canvas.toBlob(resolve, 'image/jpeg', 0.8));
+      return blob ?? file;
+    } catch {
+      return file;
+    }
+  }
+
   async function upload(file: File) {
     setMessage('Uploading…');
     try {
       const token = await getToken();
+      const blob = await compress(file);
       const { uploadUrl, storageKey } = await apiCall(token, `/jobs/${jobId}/photos/upload-url`, 'POST', {
         filename: file.name,
-        contentType: file.type || 'image/jpeg',
+        contentType: 'image/jpeg',
       });
-      const put = await fetch(uploadUrl, { method: 'PUT', body: file, headers: { 'Content-Type': file.type || 'image/jpeg' } });
+      const put = await fetch(uploadUrl, { method: 'PUT', body: blob, headers: { 'Content-Type': 'image/jpeg' } });
       if (!put.ok) throw new Error(`Upload to storage failed (${put.status})`);
       await apiCall(token, `/jobs/${jobId}/photos/confirm`, 'POST', {
         storageKey,
         originalFilename: file.name,
-        fileSizeBytes: file.size,
+        fileSizeBytes: blob.size,
       });
       setMessage('Photo saved.');
       await load();
@@ -82,9 +104,9 @@ export default function PhotoSection({ jobId, canUpload }: { jobId: string; canU
         <div style={{ display: 'flex', gap: '0.5rem', flexWrap: 'wrap' }}>
           {photos.map((photo) => (
             <figure key={photo.id} style={{ margin: 0, maxWidth: '200px' }}>
-              {photo.downloadUrl ? (
+              {(photo.thumbnailUrl ?? photo.downloadUrl) ? (
                 // eslint-disable-next-line @next/next/no-img-element
-                <img src={photo.downloadUrl} alt={photo.caption ?? photo.originalFilename} style={{ width: '100%' }} />
+                <img src={photo.thumbnailUrl ?? photo.downloadUrl} alt={photo.caption ?? photo.originalFilename} style={{ width: '100%' }} />
               ) : (
                 <p>Preview unavailable (storage not configured).</p>
               )}
