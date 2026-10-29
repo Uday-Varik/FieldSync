@@ -5,6 +5,7 @@ import JobActions from '../../../components/JobActions';
 import TechnicianStatusBar from '../../../components/TechnicianStatusBar';
 import ChecklistToggles from '../../../components/ChecklistToggles';
 import JobNotesForm from '../../../components/JobNotesForm';
+import SignaturePad from '../../../components/SignaturePad';
 
 // Phase 2 mobile job detail: status action bar, call/navigate,
 // checklist toggles, and plain-text notes (Yjs comes in Phase 3).
@@ -78,6 +79,22 @@ export default async function JobDetailPage({ params }: { params: { id: string }
       )}
 
       {canToggle && <JobNotesForm jobId={job.id} initialNotes={job.internalNotes ?? ''} />}
+
+      <h2>Signature</h2>
+      {(job.signatures ?? []).length > 0 ? (
+        <div>
+          <p>
+            Signed by {(job.signatures[0] as any).signedByName} on {(job.signatures[0] as any).signedAt?.slice(0, 19).replace('T', ' ')}
+          </p>
+          {typeof (job.signatures[0] as any).storageKey === 'string' && (job.signatures[0] as any).storageKey.startsWith('data:') && (
+            // eslint-disable-next-line @next/next/no-img-element
+            <img src={(job.signatures[0] as any).storageKey} alt="Customer signature" style={{ border: '1px solid #ccc', maxWidth: '320px' }} />
+          )}
+        </div>
+      ) : (
+        <p>No signature yet.</p>
+      )}
+      {canToggle && job.status !== 'COMPLETED' && job.status !== 'CANCELLED' && <SignaturePad jobId={job.id} />}
 
       {role && role !== 'TECHNICIAN' && <JobActions jobId={job.id} status={job.status} role={role} />}
 

@@ -53,7 +53,15 @@ export class JobsService {
   private async findScoped(companyId: string, jobId: string, user: AuthUser) {
     const job = await this.prisma.job.findFirst({
       where: { id: jobId, companyId },
-      include: { checklist: { orderBy: { sortOrder: 'asc' } } },
+      include: {
+        checklist: { orderBy: { sortOrder: 'asc' } },
+        // Current signature only, for the job detail page.
+        // storageKey holds a data URL in Phase 2 (see signature.dto.ts).
+        signatures: {
+          where: { isCurrent: true },
+          select: { id: true, signedByName: true, signedAt: true, storageKey: true },
+        },
+      },
     });
     if (!job) throw notFound();
     if (user.dbUser!.role === 'TECHNICIAN' && job.assignedTechnicianId !== user.dbUser!.id) {
@@ -168,6 +176,26 @@ export class JobsService {
     if (!canTransition(job.status, to)) {
       throw invalidState(`Cannot move job from ${job.status} to ${to}`);
     }
+    // Phase 2 completion flow: a signature is required to
+    // complete. A dispatcher or admin may override with a
+    // reason (reusing the status endpoint's reason field);
+    // a technician may not override their own missing signature.
+    let completionOverride = false;
+    if (to === 'COMPLETED') {
+      const signature = await this.prisma.signature.findFirst({
+        where: { jobId: job.id, isCurrent: true },
+      });
+      if (!signature) {
+        const role = user.dbUser!.role;
+        if (role !== 'ADMIN' && role !== 'DISPATCHER') {
+          throw invalidState('Completion requires a signature; capture one on the job first');
+        }
+        if (!reason) {
+          throw invalidState('Completing without a signature requires a reason (dispatcher/admin override)');
+        }
+        completionOverride = true;
+      }
+    }
     const data: Prisma.JobUpdateInput = {
       status: to,
       version: { increment: 1 },
@@ -180,8 +208,38 @@ export class JobsService {
     if (to === 'COMPLETED') data.completedAt = new Date();
     return this.prisma.$transaction(async (tx) => {
       const updated = await tx.job.update({ where: { id: job.id }, data });
-      await this.activity(tx, job.id, user.dbUser!.id, 'STATUS_CHANGED', job.status, to, reason ? { reason } : undefined);
+      await this.activity(
+        tx, job.id, user.dbUser!.id, 'STATUS_CHANGED', job.status, to,
+        reason ? { reason, ...(completionOverride ? { completionOverride: true } : {}) } : undefined,
+      );
       return updated;
+    });
+  }
+
+  async createSignature(user: AuthUser, jobId: string, signedByName: string, imageDataUrl: string) {
+    const job = await this.findScoped(user.dbUser!.companyId, jobId, user);
+    if (job.status === 'COMPLETED' || job.status === 'CANCELLED') {
+      throw invalidState(`Cannot capture a signature on a ${job.status} job`);
+    }
+    return this.prisma.$transaction(async (tx) => {
+      // Supersede the previous current signature (same rule as
+      // reopen: exactly one current signature per job).
+      await tx.signature.updateMany({
+        where: { jobId: job.id, isCurrent: true },
+        data: { isCurrent: false, supersededAt: new Date() },
+      });
+      const signature = await tx.signature.create({
+        data: {
+          jobId: job.id,
+          storageKey: imageDataUrl,
+          signedByName,
+          signedAt: new Date(),
+          capturedById: user.dbUser!.id,
+          isCurrent: true,
+        },
+      });
+      await this.activity(tx, job.id, user.dbUser!.id, 'SIGNATURE_CAPTURED', null, { signedByName });
+      return signature;
     });
   }
 
