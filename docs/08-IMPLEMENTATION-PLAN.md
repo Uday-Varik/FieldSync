@@ -22,9 +22,9 @@ Tasks:
 - [x] Clerk integration (web + API verification), company creation, invite flow, role guard, company scoping on every query. (PR #2, #3, #6; live verification pending real keys.)
 - [x] Jobs CRUD + state machine (server-enforced) + assignment + search/filter + Admin-only reopen endpoint (`POST /jobs/:id/reopen`, reason required, signature supersede, job sheet update on re-completion). (PR #7; job sheet update on re-completion is Phase 2 PDF work.)
 - [x] Checklist CRUD. (PR #8.)
-- [~] Audit log (interceptor/event) for job actions. (JobActivity rows exist on all major actions; global interceptor not yet done.)
-- [ ] Dispatcher dashboard + board (desktop, no map yet, no realtime yet — manual refresh is acceptable in this phase only, and must be replaced in Phase 3).
-- [ ] Technician My Day list (read-only in this phase, online only).
+- [x] Audit log (interceptor/event) for job actions. (Service-level JobActivity events, displayed on job detail — see 15-DECISIONS.md, 2026-10-29.)
+- [x] Dispatcher dashboard + board (desktop, no map yet, no realtime yet — manual refresh is acceptable in this phase only, and must be replaced in Phase 3). (PR #10.)
+- [x] Technician My Day list (read-only in this phase, online only). (PR #10.)
 
 DoD: Admin can invite, Dispatcher can create/assign/search jobs, Technician sees My Day, invalid status transitions are rejected server-side, audit timeline shows on job detail, unit tests for state machine + guards pass.
 
@@ -89,7 +89,7 @@ DoD: Live demo URL works for a stranger with seed logins; demo video exists; REA
 - Keep a `DECISIONS.md` log during build: every deviation from this pack, with date + reason. Interviewers love this, and it prevents "why did you do it that way?" from becoming a guess.
 - If stuck for > 2 hours on one task, timebox it, write the blocker in the issue, and move to an independent task — do not let sync or Yjs block the whole build.
 
-Tracking status, 2026-10-29: this plan's check marks now mirror `16-PROJECT-TRACKING.md`. Phase 0 is partial (Husky, Clerk dev project, R2 outstanding); Phase 1 is not done (board, My Day, audit interceptor outstanding). Deviations are logged in `15-DECISIONS.md`.
+Tracking status, 2026-10-29: this plan's check marks now mirror `16-PROJECT-TRACKING.md`. Phase 0 is partial (Husky, Clerk dev project, R2 outstanding); Phase 1 is DONE (code + tests + typecheck, PR #10), with live verification with real Clerk keys still outstanding. Deviations are logged in `15-DECISIONS.md`.
 
 ## What to build first if time is short
 
