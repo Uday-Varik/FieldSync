@@ -180,3 +180,29 @@ are not repeated here except where implementation changed them.
   S3/R2 bucket, Husky, and a running Postgres/Redis in this VM
   (wiped by VM restarts). None of these were faked to claim a
   live test as passed.
+
+## 2026-10-29 — Audit log: service-level events, not a global interceptor
+
+- Deviation: Phase 1 lists "Audit log (interceptor/event)".
+- Reason: JobActivity is written by the services in the same
+  transaction as the job change (create, status, assign, cancel,
+  reopen, checklist toggle), and the timeline is shown on the job
+  detail page (`/jobs/[id]`). A global post-response HTTP
+  interceptor would duplicate those rows and would not be
+  transactional, so it was not built. The DoD item — "audit
+  timeline shows on job detail" — is met by the service-level
+  events, and the tracking doc records this reasoning.
+
+## 2026-10-29 — Phase 1 board/My Day scope
+
+- Board: desktop, grouped by status, search + status filter,
+  manual refresh only. No map and no realtime in Phase 1, per the
+  plan; both are Phase 3 work and must replace manual refresh then.
+- My Day: read-only, online only, today's jobs in
+  America/Chicago. Checklist toggles, status actions, photos, and
+  signature for technicians are Phase 2, so they are hidden for
+  technicians in Phase 1 UI even though the API allows assigned
+  technicians to change status.
+- Create-job form: technician id is a text field, because no
+  /users list endpoint exists yet in Phase 1. A users list is a
+  Phase 2 improvement, not a Phase 1 blocker.

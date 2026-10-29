@@ -44,17 +44,26 @@ run itself was verified.
   Merged: PR #7 (rebased jobs, supersedes closed PR #4), 6 jobs tests, REOPEN-01/02.
 - [x] Checklist CRUD.
   Merged: PR #8 (rebased checklist, supersedes closed PR #5), 3 checklist tests.
-- [~] Audit log (interceptor/event) for job actions.
-  Gap: JobActivity rows ARE written on create, status change,
-  assign/unassign, cancel, reopen, and checklist toggle, and
-  `GET /jobs/:id/activity` exists. A global interceptor/event for
-  all job actions is NOT yet implemented — do not close until it is.
-- [ ] Dispatcher dashboard + board (desktop, no map yet, no realtime yet; manual refresh acceptable in this phase only).
-- [ ] Technician My Day list (read-only in this phase, online only).
-  Note: PR #6 is a dashboard shell (`/me` result), not a My Day list. Do not mark this done on the shell alone.
+- [x] Audit log (interceptor/event) for job actions.
+  Implemented as service-level events, not a global HTTP
+  interceptor (see `15-DECISIONS.md`, 2026-10-29): JobActivity
+  rows are written in the same transaction as the job change on
+  create, status change, assign/unassign, cancel, reopen, and
+  checklist toggle, and `GET /jobs/:id/activity` is displayed on
+  the job detail page. A post-response interceptor would duplicate
+  rows and would not be transactional, so it was not built.
+- [x] Dispatcher dashboard + board (desktop, no map yet, no realtime yet; manual refresh acceptable in this phase only).
+  Merged: PR #10, `/board` grouped by status, search + status filter, manual refresh.
+- [x] Technician My Day list (read-only in this phase, online only).
+  Merged: PR #10, `/my-day` for today's jobs, read-only; job
+  detail shows checklist + audit timeline, with actions hidden
+  for technicians in Phase 1.
 
-Phase 1 verdict: NOT done — board, My Day, and the audit-log
-interceptor remain, plus live verification with real keys.
+Phase 1 verdict: DONE (code + unit tests + typecheck), 2026-10-29.
+Caveat, kept explicit: live end-to-end verification with real
+Clerk keys and a running Postgres is still outstanding (see open
+blockers). That does not reopen the code tasks, but Phase 1 must
+not be presented as live-verified until that run passes.
 
 ## Phase 2 — Technician mobile workflow + photos + signature
 
