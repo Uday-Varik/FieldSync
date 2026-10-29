@@ -228,3 +228,18 @@ are not repeated here except where implementation changed them.
   original image until the thumbnail slice lands. If storage
   is not configured at all, upload URLs return 503
   STORAGE_NOT_CONFIGURED instead of faking a photo.
+
+## 2026-10-29 — Phase 2 fix: thumbnails with BullMQ + Jimp, best-effort queue
+
+- Thumbnail job: BullMQ queue `thumbnails`, worker run
+  separately (`npm run worker:thumbnails`). Enqueue is
+  best-effort: with no Redis configured it returns false,
+  and a Redis outage never fails a photo confirm.
+- Jimp (pure JS) instead of sharp for resizing: no native
+  binary download, after the Phase 0 Prisma-engine download
+  trouble. Jest runs under node --experimental-vm-modules
+  because Jimp v1 is ESM — without it the thumbnail tests
+  fail with a dynamic-import error.
+- Client compression: canvas resize to at most 1600px as
+  JPEG 0.8 before upload, falling back to the original file
+  if compression fails.
