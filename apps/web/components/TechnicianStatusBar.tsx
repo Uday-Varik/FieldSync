@@ -55,7 +55,7 @@ export default function TechnicianStatusBar({ jobId, status }: { jobId: string; 
       </div>
       {message && <p>{message}</p>}
       <p style={{ fontSize: '0.9rem' }}>
-        Note: completing a job in Phase 2 still needs a signature — that flow is the next slice, not this one.
+        Completing needs a signature (capture one below), unless a dispatcher/admin overrides with a reason.
       </p>
     </section>
   );

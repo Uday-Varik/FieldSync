@@ -8,6 +8,7 @@ import { CurrentUser } from '../auth/current-user.decorator';
 import { CreateJobDto } from './dto/create-job.dto';
 import { UpdateJobDto } from './dto/update-job.dto';
 import { AssignJobDto, CancelJobDto, ChangeStatusDto, ReopenJobDto } from './dto/job-action.dto';
+import { CreateSignatureDto } from './dto/signature.dto';
 import type { AuthUser } from '../auth/auth-user';
 import type { JobStatus } from '@prisma/client';
 
@@ -66,6 +67,11 @@ export class JobsController {
   @Post(':id/status')
   changeStatus(@CurrentUser() user: AuthUser, @Param('id') id: string, @Body() dto: ChangeStatusDto) {
     return this.jobs.changeStatus(user, id, dto.status, dto.reason);
+  }
+
+  @Post(':id/signature')
+  createSignature(@CurrentUser() user: AuthUser, @Param('id') id: string, @Body() dto: CreateSignatureDto) {
+    return this.jobs.createSignature(user, id, dto.signedByName, dto.imageDataUrl);
   }
 
   @Post(':id/assign')

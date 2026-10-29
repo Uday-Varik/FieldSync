@@ -15,7 +15,11 @@ function makePrisma(job: any) {
     },
     jobActivity: { create: jest.fn(), findMany: jest.fn(), count: jest.fn() },
     user: { findFirst: jest.fn() },
-    signature: { updateMany: jest.fn() },
+    signature: {
+      updateMany: jest.fn(),
+      findFirst: jest.fn().mockResolvedValue(null),
+      create: jest.fn().mockImplementation(async ({ data }: any) => ({ id: 's1', ...data })),
+    },
     $transaction: async (fn: any) => fn(prisma),
   };
   return prisma;
@@ -71,6 +75,37 @@ describe('JobsService', () => {
     const prisma2 = makePrisma({ id: 'j1', companyId: 'c1', status: 'IN_PROGRESS' });
     const svc2 = new JobsService(prisma2);
     await expect(svc2.reopen(admin, 'j1', 'x')).rejects.toMatchObject({ status: 422 });
+  });
+
+  it('signature: capture supersedes the old signature and writes activity', async () => {
+    const prisma = makePrisma({ id: 'j1', companyId: 'c1', assignedTechnicianId: 'u-tech', status: 'IN_PROGRESS' });
+    const svc = new JobsService(prisma);
+    const sig = await svc.createSignature(tech, 'j1', 'Customer Name', 'data:image/png;base64,abc');
+    expect(prisma.signature.updateMany).toHaveBeenCalledWith(
+      expect.objectContaining({ where: { jobId: 'j1', isCurrent: true } }),
+    );
+    expect(prisma.signature.create).toHaveBeenCalledWith(
+      expect.objectContaining({ data: expect.objectContaining({ signedByName: 'Customer Name', isCurrent: true }) }),
+    );
+    expect(sig.signedByName).toBe('Customer Name');
+  });
+
+  it('signature: completing without a signature is 422 for a technician, allowed for a dispatcher with a reason', async () => {
+    const job = { id: 'j1', companyId: 'c1', assignedTechnicianId: 'u-tech', status: 'IN_PROGRESS', startedAt: new Date() };
+    const prisma = makePrisma(job);
+    const svc = new JobsService(prisma);
+    await expect(svc.changeStatus(tech, 'j1', 'COMPLETED')).rejects.toMatchObject({ status: 422 });
+    await expect(svc.changeStatus(admin, 'j1', 'COMPLETED')).rejects.toMatchObject({ status: 422 });
+    const out = await svc.changeStatus(admin, 'j1', 'COMPLETED', 'Customer unavailable to sign');
+    expect(out.status).toBe('COMPLETED');
+  });
+
+  it('signature: completing with a current signature succeeds for a technician', async () => {
+    const prisma = makePrisma({ id: 'j1', companyId: 'c1', assignedTechnicianId: 'u-tech', status: 'IN_PROGRESS', startedAt: new Date() });
+    prisma.signature.findFirst.mockResolvedValue({ id: 's1', isCurrent: true });
+    const svc = new JobsService(prisma);
+    const out = await svc.changeStatus(tech, 'j1', 'COMPLETED');
+    expect(out.status).toBe('COMPLETED');
   });
 
   it('list: technician is forced to their own jobs regardless of query', async () => {
