@@ -206,3 +206,25 @@ are not repeated here except where implementation changed them.
 - Create-job form: technician id is a text field, because no
   /users list endpoint exists yet in Phase 1. A users list is a
   Phase 2 improvement, not a Phase 1 blocker.
+
+## 2026-10-29 — Phase 2: PDF generated on demand, not at completion
+
+- Deviation: the plan says the job sheet PDF is generated on
+  COMPLETED. In PR #15 it is generated on demand at the first
+  download of a completed job's sheet, and the JobSheet row is
+  then marked READY with generatedAt.
+- Reason: there is no S3 storage or background queue yet to
+  store a PDF at completion time. On-demand generation meets
+  the download endpoint requirement without inventing storage.
+
+## 2026-10-29 — Phase 2: photos without thumbnails or client compression
+
+- Deviation: PR #16 ships signed upload, confirm, grid, and
+  soft delete, but no BullMQ thumbnail job and no client-side
+  image compression.
+- Reason: thumbnails need a running Redis + a bucket, both
+  still outstanding, and compression is a client optimisation
+  that must not block the upload flow. The grid shows the
+  original image until the thumbnail slice lands. If storage
+  is not configured at all, upload URLs return 503
+  STORAGE_NOT_CONFIGURED instead of faking a photo.

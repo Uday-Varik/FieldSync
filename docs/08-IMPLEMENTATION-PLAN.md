@@ -31,11 +31,11 @@ DoD: Admin can invite, Dispatcher can create/assign/search jobs, Technician sees
 ## Phase 2 — Technician mobile workflow + photos + signature (Week 2–3, ~18 hrs)
 
 Tasks:
-- [ ] Mobile job detail: status action bar, call/navigate, checklist toggles, notes (plain text first — Yjs comes in Phase 3).
-- [ ] Photo capture: client compression, signed upload URL flow, confirm, thumbnail job (BullMQ), photo grid.
-- [ ] Signature capture + completion flow (signature required, dispatcher override with reason).
-- [ ] PWA setup: manifest, service worker for app shell, install prompt.
-- [ ] Job sheet PDF (background job with pdf-lib, decided 2026-10-27), generate on COMPLETED, download endpoint. Add Admin-only reopen (with required reason + audit) to the completion flow in this phase.
+- [x] Mobile job detail: status action bar, call/navigate, checklist toggles, notes (plain text first — Yjs comes in Phase 3). (PR #12.)
+- [~] Photo capture: signed upload URL flow, confirm, photo grid, soft delete. (PR #16.) Thumbnail job (BullMQ) and client compression NOT done — see tracking.
+- [x] Signature capture + completion flow (signature required, dispatcher override with reason). (PR #13.)
+- [x] PWA setup: manifest, service worker for app shell, install prompt. (PR #14.)
+- [x] Job sheet PDF (pdf-lib), download endpoint. (PR #15. Generated on demand at download, not at completion.)
 
 DoD: A technician can complete a job online end-to-end on a phone (emulated + real device test), PDF downloads with photos + signature, photos are private (signed URLs, not public).
 

@@ -67,11 +67,11 @@ not be presented as live-verified until that run passes.
 
 ## Phase 2 — Technician mobile workflow + photos + signature
 
-- [ ] Mobile job detail: status action bar, call/navigate, checklist toggles, notes (plain text first).
-- [ ] Photo capture: client compression, signed upload URL flow, confirm, thumbnail job (BullMQ), photo grid.
-- [ ] Signature capture + completion flow (signature required, dispatcher override with reason).
-- [ ] PWA setup: manifest, service worker for app shell, install prompt.
-- [ ] Job sheet PDF (pdf-lib), generate on COMPLETED, download endpoint. Admin reopen in the completion flow.
+- [x] Mobile job detail: status action bar, call/navigate, checklist toggles, notes (plain text first). (PR #12.)
+- [~] Photo capture: signed upload URL flow, confirm, photo grid, soft delete. (PR #16.) Thumbnail job (BullMQ) NOT done — needs a running Redis + a bucket, both outstanding. Client compression NOT done — files upload as captured.
+- [x] Signature capture + completion flow (signature required, dispatcher override with reason). (PR #13.)
+- [x] PWA setup: manifest, service worker for app shell, install prompt. (PR #14. PNG icons outstanding for full Android installability.)
+- [x] Job sheet PDF (pdf-lib), download endpoint. (PR #15. Generated on demand at download, not at completion — see 15-DECISIONS.md. Admin reopen was already in Phase 1.)
 
 ## Phase 3 — Realtime + collaborative notes
 
