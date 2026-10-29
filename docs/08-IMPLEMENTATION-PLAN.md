@@ -32,7 +32,7 @@ DoD: Admin can invite, Dispatcher can create/assign/search jobs, Technician sees
 
 Tasks:
 - [x] Mobile job detail: status action bar, call/navigate, checklist toggles, notes (plain text first — Yjs comes in Phase 3). (PR #12.)
-- [~] Photo capture: signed upload URL flow, confirm, photo grid, soft delete. (PR #16.) Thumbnail job (BullMQ) and client compression NOT done — see tracking.
+- [x] Photo capture: signed upload URL flow, confirm, photo grid, soft delete, thumbnail job (BullMQ), client compression. (PRs #16, #18.)
 - [x] Signature capture + completion flow (signature required, dispatcher override with reason). (PR #13.)
 - [x] PWA setup: manifest, service worker for app shell, install prompt. (PR #14.)
 - [x] Job sheet PDF (pdf-lib), download endpoint. (PR #15. Generated on demand at download, not at completion.)
