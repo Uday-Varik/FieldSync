@@ -10,6 +10,7 @@ import { CreateJobDto } from './dto/create-job.dto';
 import { UpdateJobDto } from './dto/update-job.dto';
 import { AssignJobDto, CancelJobDto, ChangeStatusDto, ReopenJobDto } from './dto/job-action.dto';
 import { CreateSignatureDto } from './dto/signature.dto';
+import { NoteSnapshotDto } from './dto/note-snapshot.dto';
 import type { AuthUser } from '../auth/auth-user';
 import type { JobStatus } from '@prisma/client';
 
@@ -49,6 +50,16 @@ export class JobsController {
     res.setHeader('Content-Type', 'application/pdf');
     res.setHeader('Content-Disposition', `attachment; filename="job-sheet-${id}.pdf"`);
     res.send(pdf);
+  }
+
+  @Get(':id/notes/snapshot')
+  noteSnapshot(@CurrentUser() user: AuthUser, @Param('id') id: string) {
+    return this.jobs.getNoteSnapshot(user, id);
+  }
+
+  @Post(':id/notes/snapshot')
+  saveNoteSnapshot(@CurrentUser() user: AuthUser, @Param('id') id: string, @Body() dto: NoteSnapshotDto) {
+    return this.jobs.saveNoteSnapshot(user, id, dto.snapshotBase64);
   }
 
   @Get(':id/activity')

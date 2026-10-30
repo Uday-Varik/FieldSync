@@ -8,6 +8,7 @@ import JobNotesForm from '../../../components/JobNotesForm';
 import SignaturePad from '../../../components/SignaturePad';
 import JobSheetDownload from '../../../components/JobSheetDownload';
 import PhotoSection from '../../../components/PhotoSection';
+import YjsNotes from '../../../components/YjsNotes';
 
 // Phase 2 mobile job detail: status action bar, call/navigate,
 // checklist toggles, and plain-text notes (Yjs comes in Phase 3).
@@ -81,6 +82,7 @@ export default async function JobDetailPage({ params }: { params: { id: string }
       )}
 
       {canToggle && <JobNotesForm jobId={job.id} initialNotes={job.internalNotes ?? ''} />}
+      {canToggle && <YjsNotes jobId={job.id} userName={me?.name ?? 'FieldSync user'} />}
 
       <h2>Signature</h2>
       {(job.signatures ?? []).length > 0 ? (
