@@ -9,6 +9,7 @@ import SignaturePad from '../../../components/SignaturePad';
 import JobSheetDownload from '../../../components/JobSheetDownload';
 import PhotoSection from '../../../components/PhotoSection';
 import YjsNotes from '../../../components/YjsNotes';
+import CacheJobs from '../../../components/CacheJobs';
 
 // Phase 2 mobile job detail: status action bar, call/navigate,
 // checklist toggles, and plain-text notes (Yjs comes in Phase 3).
@@ -47,6 +48,7 @@ export default async function JobDetailPage({ params }: { params: { id: string }
 
   return (
     <main style={{ padding: '1rem', maxWidth: '720px', margin: '0 auto' }}>
+      <CacheJobs jobs={[job]} />
       <p><Link href="/board">← Board</Link> · <Link href="/my-day">My Day</Link></p>
       <h1>{job.title}</h1>
       <p>Status: {job.status} · Priority: {job.priority} · Version: {job.version}</p>
@@ -66,11 +68,11 @@ export default async function JobDetailPage({ params }: { params: { id: string }
         </a>
       </section>
 
-      {isAssignedTechnician && <TechnicianStatusBar jobId={job.id} status={job.status} />}
+      {isAssignedTechnician && <TechnicianStatusBar jobId={job.id} status={job.status} jobVersion={job.version ?? 0} />}
 
       <h2>Checklist</h2>
       {canToggle ? (
-        <ChecklistToggles jobId={job.id} items={job.checklist ?? []} />
+        <ChecklistToggles jobId={job.id} items={job.checklist ?? []} jobVersion={job.version ?? 0} />
       ) : (job.checklist ?? []).length === 0 ? (
         <p>No checklist items yet.</p>
       ) : (
@@ -81,7 +83,7 @@ export default async function JobDetailPage({ params }: { params: { id: string }
         </ul>
       )}
 
-      {canToggle && <JobNotesForm jobId={job.id} initialNotes={job.internalNotes ?? ''} />}
+      {canToggle && <JobNotesForm jobId={job.id} initialNotes={job.internalNotes ?? ''} jobVersion={job.version ?? 0} />}
       {canToggle && <YjsNotes jobId={job.id} userName={me?.name ?? 'FieldSync user'} />}
 
       <h2>Signature</h2>
