@@ -3,6 +3,7 @@ import type { ReactNode } from 'react';
 import Link from 'next/link';
 import { ClerkProvider, SignedIn, SignedOut, SignInButton, UserButton } from '@clerk/nextjs';
 import PwaRegister from '../components/PwaRegister';
+import OfflineBanner from '../components/OfflineBanner';
 
 // Phase 2 PWA: manifest + theme colour + service worker
 // registration. Icons are SVG only in this slice (see PR
@@ -41,6 +42,7 @@ export default function RootLayout({ children }: { children: ReactNode }) {
               </SignedOut>
             </div>
           </header>
+          <OfflineBanner />
           {children}
         </body>
       </html>

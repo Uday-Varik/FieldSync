@@ -1,6 +1,7 @@
 import Link from 'next/link';
 import { auth } from '@clerk/nextjs/server';
 import { fetchJobs } from '../../lib/api';
+import CacheJobs from '../../components/CacheJobs';
 
 // Phase 1 technician My Day: read-only, online only.
 // The API scopes technicians to their assigned jobs, so this
@@ -30,6 +31,7 @@ export default async function MyDayPage() {
   const jobs = (result.data?.data ?? []) as any[];
   return (
     <main style={{ padding: '2rem' }}>
+      <CacheJobs jobs={jobs} />
       <h1>My Day — {today}</h1>
       <p>Read-only in Phase 1. Status changes, checklist toggles, photos, and signature come in Phase 2.</p>
       {jobs.length === 0 ? (
