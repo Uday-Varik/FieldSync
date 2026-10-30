@@ -39,7 +39,7 @@ Tasks:
 
 DoD: A technician can complete a job online end-to-end on a phone (emulated + real device test), PDF downloads with photos + signature, photos are private (signed URLs, not public).
 
-## Phase 3 — Realtime + collaborative notes (Week 3–4, ~15 hrs)
+## Phase 3 — Realtime + collaborative notes [x] DONE (code + tests + typecheck), 2026-10-30 (PRs #20, #21, #22; live verification outstanding) (Week 3–4, ~15 hrs)
 
 Tasks:
 - [ ] Socket.io gateway, company/job rooms, auth on connect, presence (job viewing/editing, technician on-job status).
