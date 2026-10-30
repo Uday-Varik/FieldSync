@@ -372,6 +372,27 @@ export class JobsService {
     return updated;
   }
 
+  async getNoteSnapshot(user: AuthUser, jobId: string) {
+    const job = await this.findScoped(user.dbUser!.companyId, jobId, user);
+    const doc = await this.prisma.jobNoteDocument.findFirst({ where: { jobId: job.id } });
+    if (!doc?.yjsSnapshot) return { snapshotBase64: null };
+    return { snapshotBase64: Buffer.from(doc.yjsSnapshot).toString('base64') };
+  }
+
+  async saveNoteSnapshot(user: AuthUser, jobId: string, snapshotBase64: string) {
+    const job = await this.findScoped(user.dbUser!.companyId, jobId, user);
+    if (job.status === 'CANCELLED') {
+      throw invalidState('Cannot edit notes on a cancelled job');
+    }
+    const bytes = Buffer.from(snapshotBase64, 'base64');
+    const doc = await this.prisma.jobNoteDocument.upsert({
+      where: { jobId: job.id },
+      create: { jobId: job.id, yjsSnapshot: bytes, updatedById: user.dbUser!.id },
+      update: { yjsSnapshot: bytes, updatedById: user.dbUser!.id },
+    });
+    return { id: doc.id, jobId: job.id, updatedAt: doc.updatedAt };
+  }
+
   async jobSheetPdf(user: AuthUser, jobId: string) {
     const job = await this.findScoped(user.dbUser!.companyId, jobId, user);
     if (job.status !== 'COMPLETED') {
