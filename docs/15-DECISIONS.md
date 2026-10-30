@@ -243,3 +243,25 @@ are not repeated here except where implementation changed them.
 - Client compression: canvas resize to at most 1600px as
   JPEG 0.8 before upload, falling back to the original file
   if compression fails.
+
+## 2026-10-30 — Phase 3: realtime, map, Yjs; web-upload fallback for the Yjs slice
+
+- Realtime: single API instance, no Redis adapter in MVP
+  (scaling step, not a Phase 3 requirement). Emits happen
+  after the DB transaction commits, so a board refresh
+  cannot race a commit. @nestjs/websockets pinned to v10
+  (v12 requires Nest 12).
+- Map: jobs without stored coordinates are geocoded
+  client-side on view; server geocoding on create is
+  best-effort (MAPBOX_TOKEN). Without a token the map
+  page shows a list instead of a broken map.
+- Yjs: snapshot persistence via JobNoteDocument, not a
+  separate Yjs persistence server; y-websocket is used
+  only when NEXT_PUBLIC_YJS_WS_URL is set.
+- Yjs files landed via the GitHub web upload UI, not
+  the connector push: five connector push approval cards
+  timed out (60 minutes each, no decision), and one
+  Allowed decision arrived after its waiting process
+  had been killed by a restart. package-lock.json was
+  not updated in that upload and must be regenerated
+  with npm install before npm ci is used.

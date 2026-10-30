@@ -116,3 +116,12 @@ independent task, and return — do not let sync block the whole build.
 - S3/R2 bucket (Phase 2 photos/PDF).
 - Husky pre-commit (Phase 0 tooling).
 - Running Postgres/Redis in this VM (wiped by VM restarts; Docker on a developer machine is the intended route).
+
+## Phase 3 — Realtime + map + Yjs notes
+
+- [x] Socket.io gateway: Clerk auth on connect, company rooms, presence, job:updated emits after DB transactions. (PR #20.)
+- [x] Live board: socket.io-client refresh on job:updated, presence list, graceful degradation. (PR #20.)
+- [x] Map view: Mapbox map, client geocoding for jobs without coordinates, job drawer, server geocoding on create (MAPBOX_TOKEN, best-effort). (PR #21.)
+- [x] Yjs notes: editor with y-websocket provider when configured, Awareness presence, snapshot save/load via /jobs/:id/notes/snapshot to JobNoteDocument.yjsSnapshot. (PR #22; files landed via GitHub web upload after connector push approval cards timed out five times — see DECISIONS.md. package-lock.json not updated in that slice; regenerate with npm install before npm ci.)
+
+Phase 3 verdict: DONE (code + tests + typecheck), 2026-10-30. All API tests 38 passing, API + web typecheck pass. Caveat, kept explicit: live end-to-end verification with real Clerk keys, a running Postgres/Redis, an S3/R2 bucket, a Mapbox token, and a Yjs websocket server is still outstanding (deferred by the user to the next day).
