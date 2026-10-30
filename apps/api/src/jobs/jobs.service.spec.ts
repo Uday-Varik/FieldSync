@@ -14,6 +14,10 @@ function makePrisma(job: any) {
       update: jest.fn().mockImplementation(async ({ data }: any) => ({ ...job, ...data })),
     },
     jobActivity: { create: jest.fn(), findMany: jest.fn(), count: jest.fn() },
+    jobNoteDocument: {
+      findFirst: jest.fn().mockResolvedValue(null),
+      upsert: jest.fn().mockImplementation(async ({ create }: any) => ({ id: 'nd1', ...create, updatedAt: new Date() })),
+    },
     user: { findFirst: jest.fn() },
     signature: {
       updateMany: jest.fn(),
@@ -134,6 +138,16 @@ describe('JobsService', () => {
       (global as any).fetch = originalFetch;
       delete process.env.MAPBOX_TOKEN;
     }
+  });
+
+  it('notes snapshot: save upserts the Yjs snapshot, get returns it as base64', async () => {
+    const prisma = makePrisma({ id: 'j1', companyId: 'c1', assignedTechnicianId: 'u-tech', status: 'IN_PROGRESS' });
+    const svc = new JobsService(prisma);
+    const saved = await svc.saveNoteSnapshot(tech, 'j1', Buffer.from('yjs-update').toString('base64'));
+    expect(saved.jobId).toBe('j1');
+    expect(prisma.jobNoteDocument.upsert).toHaveBeenCalled();
+    const empty = await svc.getNoteSnapshot(tech, 'j1');
+    expect(empty.snapshotBase64).toBeNull();
   });
 
   it('list: technician is forced to their own jobs regardless of query', async () => {
