@@ -160,7 +160,37 @@ export class JobsService {
       data: { jobId: job.id, actorId: user.dbUser!.id, action: 'CREATED', toValue: { status: 'SCHEDULED' } },
     });
     this.emit(job, companyId);
+    // Best-effort server geocoding (Phase 3 map): if a
+    // Mapbox token is configured, fill lat/lng so the map
+    // can plot the job without client geocoding. A failed
+    // geocode never fails job creation — the map view
+    // geocodes on the fly for jobs without coordinates.
+    const coords = await this.geocode(job);
+    if (coords) {
+      const updated = await this.prisma.job.update({ where: { id: job.id }, data: coords });
+      return updated;
+    }
     return job;
+  }
+
+  async geocode(job: any): Promise<{ lat: number; lng: number } | null> {
+    const token = process.env.MAPBOX_TOKEN;
+    if (!token) return null;
+    try {
+      const address = [job.addressLine1, job.addressLine2, job.city, job.state, job.postalCode, job.country ?? 'US']
+        .filter(Boolean)
+        .join(', ');
+      const res = await fetch(
+        `https://api.mapbox.com/geocoding/v5/mapbox.places/${encodeURIComponent(address)}.json?access_token=${token}&limit=1`,
+      );
+      if (!res.ok) return null;
+      const data: any = await res.json();
+      const center = data?.features?.[0]?.center;
+      if (!center || center.length < 2) return null;
+      return { lng: center[0], lat: center[1] };
+    } catch {
+      return null;
+    }
   }
 
   async update(user: AuthUser, jobId: string, dto: UpdateJobDto) {

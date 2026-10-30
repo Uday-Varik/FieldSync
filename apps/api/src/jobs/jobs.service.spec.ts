@@ -116,6 +116,26 @@ describe('JobsService', () => {
     expect(out.status).toBe('COMPLETED');
   });
 
+  it('geocode: returns null without a Mapbox token, coordinates with one', async () => {
+    const prisma = makePrisma({ id: 'j1', companyId: 'c1', status: 'SCHEDULED' });
+    const svc = new JobsService(prisma);
+    delete process.env.MAPBOX_TOKEN;
+    await expect(svc.geocode({ addressLine1: '1 Main St', city: 'Memphis', state: 'TN', postalCode: '38103' })).resolves.toBeNull();
+    process.env.MAPBOX_TOKEN = 'test-token';
+    const fetchMock = jest.fn().mockResolvedValue({
+      ok: true,
+      json: async () => ({ features: [{ center: [-90.05, 35.15] }] }),
+    });
+    const originalFetch = global.fetch;
+    (global as any).fetch = fetchMock;
+    try {
+      await expect(svc.geocode({ addressLine1: '1 Main St', city: 'Memphis', state: 'TN', postalCode: '38103' })).resolves.toEqual({ lng: -90.05, lat: 35.15 });
+    } finally {
+      (global as any).fetch = originalFetch;
+      delete process.env.MAPBOX_TOKEN;
+    }
+  });
+
   it('list: technician is forced to their own jobs regardless of query', async () => {
     const prisma = makePrisma({ id: 'j1', companyId: 'c1', status: 'SCHEDULED' });
     const svc = new JobsService(prisma);
