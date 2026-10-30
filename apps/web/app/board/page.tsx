@@ -1,6 +1,7 @@
 import Link from 'next/link';
 import { auth } from '@clerk/nextjs/server';
 import { fetchJobs } from '../../lib/api';
+import LiveBoard from '../../components/LiveBoard';
 
 // Phase 1 dispatcher board: desktop, no map, no realtime.
 // Manual refresh is acceptable in this phase only (plan §Phase 1);
@@ -43,6 +44,7 @@ export default async function BoardPage({
   return (
     <main style={{ padding: '2rem' }}>
       <h1>Dispatcher board</h1>
+      <LiveBoard />
       <form method="get" style={{ display: 'flex', gap: '0.5rem', marginBottom: '1rem' }}>
         <input name="search" placeholder="Search title or customer" defaultValue={searchParams?.search ?? ''} />
         <select name="status" defaultValue={searchParams?.status ?? ''}>

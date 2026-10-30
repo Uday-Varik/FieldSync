@@ -14,8 +14,9 @@ import { CompaniesModule } from './companies/companies.module';
 import { JobsModule } from './jobs/jobs.module';
 import { ChecklistModule } from './checklist/checklist.module';
 import { PhotosModule } from './photos/photos.module';
+import { RealtimeModule } from './realtime/realtime.module';
 
 @Module({
-  imports: [PrismaModule, AuthModule, CompaniesModule, JobsModule, ChecklistModule, PhotosModule],
+  imports: [PrismaModule, AuthModule, CompaniesModule, JobsModule, ChecklistModule, PhotosModule, RealtimeModule],
 })
 export class AppModule {}

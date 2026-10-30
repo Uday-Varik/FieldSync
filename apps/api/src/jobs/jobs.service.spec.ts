@@ -52,6 +52,14 @@ describe('JobsService', () => {
     expect(out.status).toBe('EN_ROUTE');
   });
 
+  it('changeStatus: emits a realtime job:updated event after a valid transition', async () => {
+    const prisma = makePrisma({ id: 'j1', companyId: 'c1', assignedTechnicianId: 'u-admin', status: 'SCHEDULED', startedAt: null });
+    const realtime = { emitJobUpdated: jest.fn() };
+    const svc = new JobsService(prisma, undefined as any, realtime as any);
+    await svc.changeStatus(admin, 'j1', 'EN_ROUTE');
+    expect(realtime.emitJobUpdated).toHaveBeenCalledWith('c1', 'j1', 'EN_ROUTE', expect.anything());
+  });
+
   it('changeStatus: CANCELLED via status endpoint is rejected (use cancel endpoint)', async () => {
     const prisma = makePrisma({ id: 'j1', companyId: 'c1', status: 'SCHEDULED' });
     const svc = new JobsService(prisma);

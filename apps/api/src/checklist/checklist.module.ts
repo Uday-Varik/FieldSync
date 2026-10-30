@@ -2,9 +2,10 @@ import { Module } from '@nestjs/common';
 import { ChecklistController } from './checklist.controller';
 import { ChecklistService } from './checklist.service';
 import { AuthModule } from '../auth/auth.module';
+import { RealtimeModule } from '../realtime/realtime.module';
 
 @Module({
-  imports: [AuthModule],
+  imports: [AuthModule, RealtimeModule],
   controllers: [ChecklistController],
   providers: [ChecklistService],
   exports: [ChecklistService],

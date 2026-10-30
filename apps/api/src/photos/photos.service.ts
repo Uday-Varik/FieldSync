@@ -3,6 +3,7 @@ import { randomUUID } from 'crypto';
 import { PrismaService } from '../prisma/prisma.service';
 import { StorageService } from './storage.service';
 import { ThumbnailQueue } from './thumbnail-queue';
+import { RealtimeService } from '../realtime/realtime.service';
 import type { AuthUser } from '../auth/auth-user';
 
 function notFound(): HttpException {
@@ -27,6 +28,7 @@ export class PhotosService {
     private readonly prisma: PrismaService,
     private readonly storage: StorageService = new StorageService(),
     private readonly thumbnails: ThumbnailQueue = new ThumbnailQueue(),
+    private readonly realtime: RealtimeService = new RealtimeService(),
   ) {}
 
   private async findScoped(companyId: string, jobId: string, user: AuthUser) {
@@ -70,6 +72,7 @@ export class PhotosService {
     });
     // Best-effort: a missing Redis must not fail the confirm.
     await this.thumbnails.enqueue(photo.id);
+    this.realtime.emitJobUpdated(job.companyId, job.id, job.status);
     return photo;
   }
 
