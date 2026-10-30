@@ -6,6 +6,8 @@
     "@nestjs/common": "^10.0.0",
     "@nestjs/core": "^10.0.0",
     "@nestjs/platform-express": "^10.0.0",
+    "@nestjs/platform-socket.io": "^10.4.22",
+    "@nestjs/websockets": "^10.4.22",
     "@prisma/client": "^5.0.0",
     "bullmq": "^6.5.1",
     "class-transformer": "^0.5.1",
@@ -13,7 +15,8 @@
     "jimp": "^1.6.1",
     "pdf-lib": "^1.17.1",
     "reflect-metadata": "^0.2.0",
-    "rxjs": "^7.0.0"
+    "rxjs": "^7.0.0",
+    "socket.io": "^4.8.4"
   },
   "devDependencies": {
     "@nestjs/cli": "^10.0.0",

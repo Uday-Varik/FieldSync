@@ -1,5 +1,6 @@
 import { HttpException, HttpStatus, Injectable } from '@nestjs/common';
 import { PrismaService } from '../prisma/prisma.service';
+import { RealtimeService } from '../realtime/realtime.service';
 import type { AuthUser } from '../auth/auth-user';
 
 function notFound(): HttpException {
@@ -26,7 +27,7 @@ function notFound(): HttpException {
  */
 @Injectable()
 export class ChecklistService {
-  constructor(private readonly prisma: PrismaService) {}
+  constructor(private readonly prisma: PrismaService, private readonly realtime: RealtimeService = new RealtimeService()) {}
 
   private async findJob(companyId: string, jobId: string, user: AuthUser) {
     const job = await this.prisma.job.findFirst({ where: { id: jobId, companyId } });
@@ -64,7 +65,7 @@ export class ChecklistService {
     }
     const item = await this.prisma.checklistItem.findFirst({ where: { id: itemId, jobId: job.id } });
     if (!item) throw notFound();
-    return this.prisma.$transaction(async (tx) => {
+    const updated = await this.prisma.$transaction(async (tx) => {
       const updated = await tx.checklistItem.update({
         where: { id: item.id },
         data: {
@@ -85,5 +86,7 @@ export class ChecklistService {
       });
       return updated;
     });
+    this.realtime.emitJobUpdated(job.companyId, job.id, job.status);
+    return updated;
   }
 }

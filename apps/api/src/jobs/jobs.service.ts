@@ -2,6 +2,7 @@ import { HttpException, HttpStatus, Injectable } from '@nestjs/common';
 import type { JobStatus, Prisma } from '@prisma/client';
 import { PrismaService } from '../prisma/prisma.service';
 import { JobSheetService } from './job-sheet.service';
+import { RealtimeService } from '../realtime/realtime.service';
 import { canTransition } from './job-state-machine';
 import { CreateJobDto } from './dto/create-job.dto';
 import { UpdateJobDto } from './dto/update-job.dto';
@@ -52,7 +53,14 @@ export class JobsService {
   constructor(
     private readonly prisma: PrismaService,
     private readonly jobSheet: JobSheetService = new JobSheetService(),
+    private readonly realtime: RealtimeService = new RealtimeService(),
   ) {}
+
+  private emit(job: any, companyId: string) {
+    // Realtime is best-effort: a missing socket server must
+    // never fail a job mutation (RealtimeService no-ops).
+    this.realtime.emitJobUpdated(companyId, job.id, job.status, job.version);
+  }
 
   private async findScoped(companyId: string, jobId: string, user: AuthUser) {
     const job = await this.prisma.job.findFirst({
@@ -151,6 +159,7 @@ export class JobsService {
     await this.prisma.jobActivity.create({
       data: { jobId: job.id, actorId: user.dbUser!.id, action: 'CREATED', toValue: { status: 'SCHEDULED' } },
     });
+    this.emit(job, companyId);
     return job;
   }
 
@@ -160,7 +169,7 @@ export class JobsService {
       throw invalidState('Completed or cancelled jobs cannot be edited; use reopen for completed jobs');
     }
     const { scheduledDate, ...rest } = dto;
-    return this.prisma.job.update({
+    const updated = await this.prisma.job.update({
       where: { id: job.id },
       data: {
         ...rest,
@@ -170,6 +179,8 @@ export class JobsService {
         lastEditedAt: new Date(),
       },
     });
+    this.emit(updated, job.companyId);
+    return updated;
   }
 
   async changeStatus(user: AuthUser, jobId: string, to: JobStatus, reason?: string) {
@@ -210,14 +221,16 @@ export class JobsService {
     if (job.status === 'ON_HOLD') data.previousStatus = null;
     if (to === 'IN_PROGRESS' && !job.startedAt) data.startedAt = new Date();
     if (to === 'COMPLETED') data.completedAt = new Date();
-    return this.prisma.$transaction(async (tx) => {
-      const updated = await tx.job.update({ where: { id: job.id }, data });
+    const updated = await this.prisma.$transaction(async (tx) => {
+      const updatedTx = await tx.job.update({ where: { id: job.id }, data });
       await this.activity(
         tx, job.id, user.dbUser!.id, 'STATUS_CHANGED', job.status, to,
         reason ? { reason, ...(completionOverride ? { completionOverride: true } : {}) } : undefined,
       );
-      return updated;
+      return updatedTx;
     });
+    this.emit(updated, job.companyId);
+    return updated;
   }
 
   async createSignature(user: AuthUser, jobId: string, signedByName: string, imageDataUrl: string) {
@@ -225,7 +238,7 @@ export class JobsService {
     if (job.status === 'COMPLETED' || job.status === 'CANCELLED') {
       throw invalidState(`Cannot capture a signature on a ${job.status} job`);
     }
-    return this.prisma.$transaction(async (tx) => {
+    const signature = await this.prisma.$transaction(async (tx) => {
       // Supersede the previous current signature (same rule as
       // reopen: exactly one current signature per job).
       await tx.signature.updateMany({
@@ -245,6 +258,8 @@ export class JobsService {
       await this.activity(tx, job.id, user.dbUser!.id, 'SIGNATURE_CAPTURED', null, { signedByName });
       return signature;
     });
+    this.emit(job, job.companyId);
+    return signature;
   }
 
   async assign(user: AuthUser, jobId: string, technicianId: string | null | undefined) {
@@ -255,8 +270,8 @@ export class JobsService {
     if (technicianId) {
       await this.assertTechnician(user.dbUser!.companyId, technicianId);
     }
-    return this.prisma.$transaction(async (tx) => {
-      const updated = await tx.job.update({
+    const updated = await this.prisma.$transaction(async (tx) => {
+      const updatedTx = await tx.job.update({
         where: { id: job.id },
         data: {
           assignedTechnicianId: technicianId ?? null,
@@ -266,8 +281,10 @@ export class JobsService {
         },
       });
       await this.activity(tx, job.id, user.dbUser!.id, technicianId ? 'ASSIGNED' : 'UNASSIGNED', job.assignedTechnicianId, technicianId ?? null);
-      return updated;
+      return updatedTx;
     });
+    this.emit(updated, job.companyId);
+    return updated;
   }
 
   async cancel(user: AuthUser, jobId: string, reason: string) {
@@ -275,8 +292,8 @@ export class JobsService {
     if (job.status === 'COMPLETED' || job.status === 'CANCELLED') {
       throw invalidState(`Cannot cancel a ${job.status} job`);
     }
-    return this.prisma.$transaction(async (tx) => {
-      const updated = await tx.job.update({
+    const updated = await this.prisma.$transaction(async (tx) => {
+      const updatedTx = await tx.job.update({
         where: { id: job.id },
         data: {
           status: 'CANCELLED',
@@ -288,8 +305,10 @@ export class JobsService {
         },
       });
       await this.activity(tx, job.id, user.dbUser!.id, 'CANCELLED', job.status, 'CANCELLED', { reason });
-      return updated;
+      return updatedTx;
     });
+    this.emit(updated, job.companyId);
+    return updated;
   }
 
   async reopen(user: AuthUser, jobId: string, reason: string) {
@@ -297,7 +316,7 @@ export class JobsService {
     if (job.status !== 'COMPLETED') {
       throw invalidState('Only a completed job can be reopened');
     }
-    return this.prisma.$transaction(async (tx) => {
+    const updated = await this.prisma.$transaction(async (tx) => {
       // Supersede the current signature so re-completion can
       // capture a new one (audit REOPEN-01/02). Photos are retained.
       await tx.signature.updateMany({
@@ -319,6 +338,8 @@ export class JobsService {
       await this.activity(tx, job.id, user.dbUser!.id, 'REOPENED', 'COMPLETED', 'IN_PROGRESS', { reason });
       return updated;
     });
+    this.emit(updated, job.companyId);
+    return updated;
   }
 
   async jobSheetPdf(user: AuthUser, jobId: string) {
