@@ -47,6 +47,10 @@ function makePrisma(jobOverrides: any = {}, opts: any = {}) {
       updateMany: jest.fn(async () => ({ count: 1 })),
       create: jest.fn(async ({ data }: any) => { hasCurrentSignature = true; return { id: 's1', ...data }; }),
     },
+    photo: {
+      findFirst: jest.fn(async () => null),
+      create: jest.fn(async ({ data }: any) => ({ id: 'ph1', ...data })),
+    },
     jobActivity: { create: jest.fn(async ({ data }: any) => { calls.activity++; return { id: 'a1', ...data }; }) },
     syncMutation: {
       create: jest.fn(async ({ data }: any) => {
@@ -170,6 +174,16 @@ describe('SyncService — must-pass cases (docs/07 §8, server side)', () => {
     ] as any);
     expect(res.results[0].reason).toBe('ALREADY_COMPLETED');
     expect(res.results[1].reason).toBe('FORBIDDEN');
+  });
+
+  it('7. offline photo metadata: creates a PENDING photo row, additive, never a conflict', async () => {
+    const { prisma, tx } = makePrisma();
+    const svc = new SyncService(prisma);
+    const res = await svc.sync(tech, [
+      { clientMutationId: 'm-photo', type: 'ADD_PHOTO_META' as const, jobId: 'j1', clientVersion: 1, payload: { storageKey: 'jobs/j1/uuid-photo.jpg', originalFilename: 'photo.jpg', fileSizeBytes: 1234 } },
+    ] as any);
+    expect(res.results[0].status).toBe('APPLIED');
+    expect(tx.photo.create).toHaveBeenCalledWith(expect.objectContaining({ data: expect.objectContaining({ status: 'PENDING' }) }));
   });
 
   it('technician on an unassigned job is rejected; unknown job is rejected without storing', async () => {

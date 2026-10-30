@@ -8,6 +8,7 @@ export enum SyncMutationType {
   ADD_CHECKLIST_ITEM = 'ADD_CHECKLIST_ITEM',
   ADD_NOTE = 'ADD_NOTE',
   ADD_SIGNATURE = 'ADD_SIGNATURE',
+  ADD_PHOTO_META = 'ADD_PHOTO_META',
 }
 
 export class SyncMutationDto {

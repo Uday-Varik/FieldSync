@@ -38,13 +38,24 @@ export class PhotosService {
     return job;
   }
 
-  async uploadUrl(user: AuthUser, jobId: string, filename: string, contentType: string) {
+  async uploadUrl(user: AuthUser, jobId: string, filename: string, contentType: string, storageKey?: string) {
     const job = await this.findScoped(user.dbUser!.companyId, jobId, user);
     if (job.status === 'COMPLETED' || job.status === 'CANCELLED') {
       throw invalidState(`Cannot upload photos to a ${job.status} job`);
     }
-    const safeName = filename.replace(/[^a-zA-Z0-9._-]/g, '_').slice(0, 100);
-    const key = `jobs/${job.id}/${randomUUID()}-${safeName}`;
+    let key: string;
+    if (storageKey) {
+      // Offline-photo flow: the key must reference a PENDING
+      // photo row for this job, created by a synced
+      // ADD_PHOTO_META mutation. Anything else is 404, so
+      // a client cannot claim an arbitrary storage key.
+      const existing = await this.prisma.photo.findFirst({ where: { jobId: job.id, storageKey, status: 'PENDING', deletedAt: null } });
+      if (!existing) throw notFound();
+      key = storageKey;
+    } else {
+      const safeName = filename.replace(/[^a-zA-Z0-9._-]/g, '_').slice(0, 100);
+      key = `jobs/${job.id}/${randomUUID()}-${safeName}`;
+    }
     const url = await this.storage.uploadUrl(key, contentType);
     return { uploadUrl: url, storageKey: key };
   }
@@ -54,19 +65,29 @@ export class PhotosService {
     if (job.status === 'COMPLETED' || job.status === 'CANCELLED') {
       throw invalidState(`Cannot add photos to a ${job.status} job`);
     }
-    const photo = await this.prisma.photo.create({
-      data: {
-        jobId: job.id,
-        uploadedById: user.dbUser!.id,
-        storageKey: dto.storageKey,
-        originalFilename: dto.originalFilename,
-        caption: dto.caption ?? null,
-        lat: dto.lat ?? null,
-        lng: dto.lng ?? null,
-        fileSizeBytes: dto.fileSizeBytes ?? null,
-        status: 'READY',
-      },
-    });
+    // Offline-photo flow: if a PENDING row already exists
+    // for this storageKey (created by a synced
+    // ADD_PHOTO_META mutation), mark it READY instead of
+    // creating a second row for the same photo.
+    const existing = await this.prisma.photo.findFirst({ where: { jobId: job.id, storageKey: dto.storageKey, deletedAt: null } });
+    const photo = existing
+      ? await this.prisma.photo.update({
+          where: { id: existing.id },
+          data: { status: 'READY', originalFilename: dto.originalFilename, caption: dto.caption ?? existing.caption, lat: dto.lat ?? existing.lat, lng: dto.lng ?? existing.lng, fileSizeBytes: dto.fileSizeBytes ?? existing.fileSizeBytes },
+        })
+      : await this.prisma.photo.create({
+          data: {
+            jobId: job.id,
+            uploadedById: user.dbUser!.id,
+            storageKey: dto.storageKey,
+            originalFilename: dto.originalFilename,
+            caption: dto.caption ?? null,
+            lat: dto.lat ?? null,
+            lng: dto.lng ?? null,
+            fileSizeBytes: dto.fileSizeBytes ?? null,
+            status: 'READY',
+          },
+        });
     await this.prisma.jobActivity.create({
       data: { jobId: job.id, actorId: user.dbUser!.id, action: 'PHOTO_ADDED', toValue: { photoId: photo.id } },
     });

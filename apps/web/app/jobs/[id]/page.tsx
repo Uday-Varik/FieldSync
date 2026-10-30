@@ -10,6 +10,7 @@ import JobSheetDownload from '../../../components/JobSheetDownload';
 import PhotoSection from '../../../components/PhotoSection';
 import YjsNotes from '../../../components/YjsNotes';
 import CacheJobs from '../../../components/CacheJobs';
+import { ConflictBanner, FailedNotices } from '../../../components/SyncNotices';
 
 // Phase 2 mobile job detail: status action bar, call/navigate,
 // checklist toggles, and plain-text notes (Yjs comes in Phase 3).
@@ -49,6 +50,8 @@ export default async function JobDetailPage({ params }: { params: { id: string }
   return (
     <main style={{ padding: '1rem', maxWidth: '720px', margin: '0 auto' }}>
       <CacheJobs jobs={[job]} />
+      <ConflictBanner jobId={job.id} />
+      <FailedNotices jobId={job.id} />
       <p><Link href="/board">← Board</Link> · <Link href="/my-day">My Day</Link></p>
       <h1>{job.title}</h1>
       <p>Status: {job.status} · Priority: {job.priority} · Version: {job.version}</p>
@@ -102,7 +105,7 @@ export default async function JobDetailPage({ params }: { params: { id: string }
       )}
       {canToggle && job.status !== 'COMPLETED' && job.status !== 'CANCELLED' && <SignaturePad jobId={job.id} />}
       {job.status === 'COMPLETED' && <JobSheetDownload jobId={job.id} />}
-      <PhotoSection jobId={job.id} canUpload={canToggle && job.status !== 'COMPLETED' && job.status !== 'CANCELLED'} />
+      <PhotoSection jobId={job.id} canUpload={canToggle && job.status !== 'COMPLETED' && job.status !== 'CANCELLED'} jobVersion={job.version ?? 0} />
 
       {role && role !== 'TECHNICIAN' && <JobActions jobId={job.id} status={job.status} role={role} />}
 
@@ -114,6 +117,8 @@ export default async function JobDetailPage({ params }: { params: { id: string }
           {activity.map((a: any) => (
             <li key={a.id}>
               {a.createdAt?.slice(0, 19).replace('T', ' ')} — {a.action}
+              {a.metadata?.offline ? ' (synced offline)' : ''}
+              {a.metadata?.conflictDetails ? ` — sync resolved: ${JSON.stringify(a.metadata.conflictDetails)}` : ''}
               {a.fromValue ? ` (${JSON.stringify(a.fromValue)} → ${JSON.stringify(a.toValue)})` : ''}
             </li>
           ))}
