@@ -67,12 +67,12 @@ export default function TechnicianStatusBar({ jobId, status, jobVersion }: { job
       <h2>Status</h2>
       <div style={{ display: 'flex', gap: '0.5rem', flexWrap: 'wrap' }}>
         {next.map((n) => (
-          <button key={n} style={bigButton} onClick={() => move(n)}>
+          <button key={n} style={bigButton} aria-label={`Move job to ${n.replace('_', ' ')}`} onClick={() => move(n)}>
             {n.replace('_', ' ')}
           </button>
         ))}
       </div>
-      {message && <p>{message}</p>}
+      {message && <p aria-live="polite">{message}</p>}
       <p style={{ fontSize: '0.9rem' }}>
         Completing needs a signature (capture one below), unless a dispatcher/admin overrides with a reason.
       </p>

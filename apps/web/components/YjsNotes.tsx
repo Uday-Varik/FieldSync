@@ -120,6 +120,7 @@ export default function YjsNotes({ jobId, userName }: { jobId: string; userName:
           : 'Local Yjs document — set NEXT_PUBLIC_YJS_WS_URL for live multi-user sync. Save below persists a snapshot to the job.'}
       </p>
       <textarea
+        aria-label="Shared job notes"
         value={value}
         onChange={(e) => onChange(e.target.value)}
         rows={6}
@@ -129,7 +130,7 @@ export default function YjsNotes({ jobId, userName }: { jobId: string; userName:
       <button type="button" onClick={save} disabled={!loaded} style={{ minHeight: '44px', padding: '0.75rem 1rem', marginTop: '0.5rem' }}>
         Save notes snapshot
       </button>
-      {message && <p>{message}</p>}
+      {message && <p aria-live="polite">{message}</p>}
     </section>
   );
 }

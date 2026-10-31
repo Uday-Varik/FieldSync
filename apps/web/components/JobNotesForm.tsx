@@ -42,6 +42,7 @@ export default function JobNotesForm({ jobId, initialNotes, jobVersion }: { jobI
     <form onSubmit={save} style={{ marginTop: '1rem' }}>
       <h2>Notes (plain text)</h2>
       <textarea
+        aria-label="Job notes for the team"
         value={notes}
         onChange={(e) => setNotes(e.target.value)}
         rows={4}
@@ -51,7 +52,7 @@ export default function JobNotesForm({ jobId, initialNotes, jobVersion }: { jobI
       <button type="submit" style={{ minHeight: '44px', padding: '0.75rem 1rem', marginTop: '0.5rem' }}>
         Save notes
       </button>
-      {message && <p>{message}</p>}
+      {message && <p aria-live="polite">{message}</p>}
     </form>
   );
 }

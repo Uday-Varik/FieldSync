@@ -19,6 +19,14 @@ const NEXT: Record<string, string[]> = {
   CANCELLED: [],
 };
 
+// Phase 5 accessibility: 44px tap targets, screen-reader labels on
+// status buttons, and an announced (aria-live) result message.
+const actionButton: React.CSSProperties = {
+  minHeight: '44px',
+  padding: '0.75rem 1rem',
+  fontSize: '1rem',
+};
+
 export default function JobActions({ jobId, status, role }: { jobId: string; status: string; role: string }) {
   const { getToken } = useAuth();
   const router = useRouter();
@@ -42,23 +50,28 @@ export default function JobActions({ jobId, status, role }: { jobId: string; sta
       <h2>Actions (Dispatcher / Admin)</h2>
       <div style={{ display: 'flex', gap: '0.5rem', flexWrap: 'wrap', marginBottom: '0.5rem' }}>
         {(NEXT[status] ?? []).map((next) => (
-          <button key={next} onClick={() => run(`/jobs/${jobId}/status`, { status: next })}>
+          <button
+            key={next}
+            style={actionButton}
+            aria-label={`Move job to ${next.replace('_', ' ')}`}
+            onClick={() => run(`/jobs/${jobId}/status`, { status: next })}
+          >
             Move to {next}
           </button>
         ))}
       </div>
       <div style={{ display: 'flex', gap: '0.5rem', marginBottom: '0.5rem' }}>
-        <input placeholder="Technician user id (assign)" value={technicianId} onChange={(e) => setTechnicianId(e.target.value)} />
-        <button onClick={() => run(`/jobs/${jobId}/assign`, { technicianId: technicianId || null })}>Assign / unassign</button>
+        <input aria-label="Technician user id to assign" placeholder="Technician user id (assign)" value={technicianId} onChange={(e) => setTechnicianId(e.target.value)} />
+        <button style={actionButton} onClick={() => run(`/jobs/${jobId}/assign`, { technicianId: technicianId || null })}>Assign / unassign</button>
       </div>
       <div style={{ display: 'flex', gap: '0.5rem' }}>
-        <input placeholder="Reason (cancel / reopen)" value={reason} onChange={(e) => setReason(e.target.value)} />
-        <button onClick={() => run(`/jobs/${jobId}/cancel`, { reason })}>Cancel</button>
+        <input aria-label="Reason for cancel or reopen" placeholder="Reason (cancel / reopen)" value={reason} onChange={(e) => setReason(e.target.value)} />
+        <button style={actionButton} onClick={() => run(`/jobs/${jobId}/cancel`, { reason })}>Cancel</button>
         {role === 'ADMIN' && status === 'COMPLETED' && (
-          <button onClick={() => run(`/jobs/${jobId}/reopen`, { reason })}>Reopen (Admin)</button>
+          <button style={actionButton} onClick={() => run(`/jobs/${jobId}/reopen`, { reason })}>Reopen (Admin)</button>
         )}
       </div>
-      {message && <p>{message}</p>}
+      {message && <p aria-live="polite">{message}</p>}
     </section>
   );
 }
