@@ -2,6 +2,10 @@
 # this image is the API only. Build context is the repo root.
 FROM node:20-bookworm-slim AS build
 WORKDIR /app
+# openssl CLI must be present BEFORE prisma generate: without it Prisma
+# cannot detect OpenSSL 3 and falls back to the 1.1.x query engine,
+# which crashes at runtime on bookworm (debian-openssl-3.0.x).
+RUN apt-get update && apt-get install -y --no-install-recommends openssl ca-certificates && rm -rf /var/lib/apt/lists/*
 # Manifests first for layer caching. apps/web's manifest is copied so
 # npm workspace resolution succeeds; its source is not copied.
 COPY package.json package-lock.json ./
