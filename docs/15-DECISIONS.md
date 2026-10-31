@@ -359,3 +359,10 @@ are not repeated here except where implementation changed them.
   suppression anywhere). Known limitation: the
   signature canvas is pointer/touch only; keyboard
   users complete via dispatcher/admin override.
+- Vercel prepare guard (2026-10-31): root "prepare"
+  is now "husky || true". Vercel installs with
+  NODE_ENV=production, which omits devDependencies,
+  so husky was missing and `npm install` died with
+  exit 127 ("husky: command not found"). Git hooks
+  are pointless on a build machine; on developer
+  machines husky still installs normally.
