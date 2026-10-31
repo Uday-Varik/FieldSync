@@ -36,6 +36,7 @@
     "build": "nest build",
     "db:migrate": "prisma migrate dev",
     "db:seed": "ts-node prisma/seed.ts",
+    "db:reset-demo": "ts-node prisma/reset-demo.ts",
     "dev": "nest start --watch",
     "lint": "eslint src",
     "test": "node --experimental-vm-modules ../../node_modules/jest/bin/jest.js",
