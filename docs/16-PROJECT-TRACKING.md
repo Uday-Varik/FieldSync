@@ -75,18 +75,6 @@ Phase 2 verdict: DONE (code + tests + typecheck), 2026-10-29. Caveat, kept expli
 - [x] PWA setup: manifest, service worker for app shell, install prompt. (PR #14. PNG icons outstanding for full Android installability.)
 - [x] Job sheet PDF (pdf-lib), download endpoint. (PR #15. Generated on demand at download, not at completion — see 15-DECISIONS.md. Admin reopen was already in Phase 1.)
 
-## Phase 3 — Realtime + collaborative notes
-
-- [ ] Socket.io gateway, company/job rooms, auth on connect, presence.
-- [ ] Live board/map updates: job events invalidate TanStack Query + update board without refresh.
-- [ ] Map view (Mapbox): today's jobs + active technicians, click → job drawer.
-- [ ] Yjs notes: shared notes document, snapshot persistence, presence in notes editor.
-- [ ] Live latency check: technician status change appears on dispatcher board in < 2s.
-
-Timebox note: if Yjs blocks, fall back per the plan (plain notes
-+ last-write-wins with audit) and move on — do not let Yjs block
-the whole build.
-
 ## Phase 4 — Offline-first + sync (DO NOT RUSH)
 
 - [x] Dexie schema: jobs, outbox, photoBlobs, syncMeta. Auto-cache today's/tomorrow's assigned jobs. (PR #25.)
@@ -102,20 +90,22 @@ independent task, and return — do not let sync block the whole build.
 
 ## Phase 5 — Polish, demo, deploy
 
-- [ ] Staging + production deploys (Vercel + Fly.io + Neon + Upstash + R2), env vars, health checks, Sentry.
+- [x] Health endpoints: GET /health (public) + GET /health/db (Clerk-guarded, 503 when the DB is down). (PR #28.)
+- [ ] Staging + production deploys (Vercel + Fly.io + Neon + Upstash + R2), env vars, Sentry.
 - [ ] Demo data reset script, demo login instructions in README, 2-minute demo video.
 - [ ] README final: architecture diagram, sync explanation with diagram, tradeoffs (ADR summaries), what was cut and why, how to run tests.
 - [ ] Accessibility pass: tap targets, contrast, keyboard navigation, screen-reader labels on status buttons.
 - [ ] Performance pass: board query indexes verified, photo compression verified, bundle check, Lighthouse PWA check.
 - [ ] Final E2E suite green in CI.
 
+Status, 2026-10-31: health endpoints done (PR #28, 53 API tests). Live core verification passed Oct 31 (see 15-DECISIONS.md); remaining: deploys, demo reset, README, accessibility, performance, E2E, plus the browser sign-in journey, Yjs server, live photo/PDF, and offline demo flow.
+
 ## Open blockers (all pending, none faked)
 
-- Real Clerk keys (Phase 1 live auth, web sign-in).
-- Mapbox token (Phase 1/3 map).
-- S3/R2 bucket (Phase 2 photos/PDF).
-- Husky pre-commit (Phase 0 tooling).
-- Running Postgres/Redis in this VM (wiped by VM restarts; Docker on a developer machine is the intended route).
+- Browser sign-in journey with a real Clerk test user, Yjs websocket server, live photo upload/PDF download, full offline demo flow (live core verification — Neon seed, API guards, web boot — passed Oct 31; see 15-DECISIONS.md).
+- Husky pre-commit (Phase 0 tooling; Phase 5 slice pending).
+- PNG PWA icons (Phase 5 slice pending).
+- Running Postgres/Redis in this VM (wiped by VM restarts; live verification uses Neon/Upstash via a loopback TLS proxy — see 15-DECISIONS.md; Docker on a developer machine is the intended route).
 
 ## Phase 3 — Realtime + map + Yjs notes
 
@@ -133,3 +123,5 @@ Phase 3 verdict: DONE (code + tests + typecheck), 2026-10-30. All API tests 38 p
 - [x] Conflict UX: technician dismissible banner from conflictDetails, persistent rejected notices with Discard, dispatcher timeline entries. Offline photos: Blob storage (warn 200 MB, block 500 MB), ADD_PHOTO_META, upload-after-metadata with storageKey reuse. (PR #26.)
 
 Phase 4 verdict: DONE (code + tests + typecheck), 2026-10-30. All API tests 47 passing, API + web typecheck pass. Caveat, kept explicit: live end-to-end verification with real Clerk keys, a running Postgres/Redis, an S3/R2 bucket, a Mapbox token, and a Yjs websocket server is still outstanding (deferred by the user to the next day), including the full offline demo flow (technician completes a job fully offline, syncs on reconnect, dispatcher sees COMPLETED + PDF) and the live photo upload.
+
+Update, 2026-10-31: live core verification passed (Neon migrate + seed with exact counts, API guards return 401, web returns 200; see 15-DECISIONS.md for the VM-only proxy workaround). Browser sign-in journey, Yjs server, live photo/PDF, and the offline demo flow remain outstanding.

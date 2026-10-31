@@ -291,3 +291,31 @@ are not repeated here except where implementation changed them.
   by a service restart mid-call; the commit (d39cab8f)
   had already landed, verified by remote readback before
   the PR was created — no duplicate push was sent.
+- Live verification, VM-only workaround (2026-10-31):
+  this VM cannot reach Neon directly (egress proxy);
+  a plain CONNECT tunnel sends wrong/missing SNI and
+  Prisma SCRAM channel binding mismatches through a
+  TLS-terminating proxy. Verification used a loopback
+  TLS-terminating proxy (127.0.0.1:5433, throwaway
+  cert) with DATABASE_URL overridden at process level
+  only (host -> loopback, channel_binding=disable);
+  the stored .env is unchanged and production direct
+  connections are unaffected. The Neon password was
+  correct all along; the earlier P1010 blame on the
+  password was wrong and is superseded. Neon compute
+  also scales to zero when idle: the first API boot
+  after idle failed with P1017 and succeeded on retry
+  once the compute was warm.
+- Web CLERK_SECRET_KEY gap (2026-10-31): @clerk/nextjs
+  middleware requires CLERK_SECRET_KEY; web .env.example
+  omitted it, so the first live web boot returned 500
+  on every page. Added to .env.local locally and to
+  web .env.example in the Phase 5 docs slice.
+- S3_ENDPOINT brackets (2026-10-31): the supplied
+  endpoint wrapped the correct 32-hex account ID in
+  angle brackets; only the brackets were stripped
+  from apps/api/.env. Signed-URL generation then
+  succeeded; bucket upload/download still unverified.
+- Health endpoints (2026-10-31, PR #28): GET /health
+  public, GET /health/db Clerk-guarded with 503 when
+  the DB is down; Redis unconfigured is not degraded.
