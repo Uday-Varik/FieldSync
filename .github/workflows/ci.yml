@@ -49,8 +49,8 @@ jobs:
           node-version: 20
           cache: npm
       - run: npm ci
-      - run: npm run typecheck --workspaces --if-present
       - run: npx prisma generate --schema apps/api/prisma/schema.prisma
+      - run: npm run typecheck --workspaces --if-present
       - run: npm run test --workspace=fieldsync-api
       - run: npx prisma migrate deploy --schema apps/api/prisma/schema.prisma
       - name: Check migrations match the schema (no drift)
