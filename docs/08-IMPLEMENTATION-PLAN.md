@@ -73,7 +73,7 @@ Tasks:
 - [ ] Performance pass: board query indexes verified, photo compression verified, bundle check, Lighthouse PWA check.
 - [ ] Final E2E suite green in CI (see testing doc).
 
-Status, 2026-10-31: health checks done (PR #28, GET /health + GET /health/db); deploys, Sentry, demo reset, README, accessibility, performance, and E2E still pending. Live core verification passed Oct 31 (see 15-DECISIONS.md); browser sign-in journey, Yjs server, live photo/PDF, and offline demo flow remain outstanding.
+Status, 2026-10-31: health checks (PR #28), Husky (PR #30), PWA icons (PRs #32, #34), demo reset (PR #31), accessibility (PR #33), performance verification, CI (PR #35), and README final (this PR) done; deploys, Sentry, E2E, and the demo video still pending (all need deployment access). Live core verification passed Oct 31 (see 15-DECISIONS.md); browser sign-in journey, Yjs server, live photo/PDF, and offline demo flow remain outstanding.
 
 DoD: Live demo URL works for a stranger with seed logins; demo video exists; README answers "what did you build, why is it hard, what would you do next?" without needing the builder in the room.
 

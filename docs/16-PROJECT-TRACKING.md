@@ -72,7 +72,7 @@ not be presented as live-verified until that run passes.
 
 Phase 2 verdict: DONE (code + tests + typecheck), 2026-10-29. Caveat, kept explicit: live end-to-end verification with real Clerk keys, a running Postgres/Redis, and an S3/R2 bucket is still outstanding.
 - [x] Signature capture + completion flow (signature required, dispatcher override with reason). (PR #13.)
-- [x] PWA setup: manifest, service worker for app shell, install prompt. (PR #14. PNG icons outstanding for full Android installability.)
+- [x] PWA setup: manifest, service worker for app shell, install prompt. (PR #14. PNG 192/512 icons added in PR #32 via the web upload UI, manifest wired in PR #34.)
 - [x] Job sheet PDF (pdf-lib), download endpoint. (PR #15. Generated on demand at download, not at completion — see 15-DECISIONS.md. Admin reopen was already in Phase 1.)
 
 ## Phase 4 — Offline-first + sync (DO NOT RUSH)
@@ -91,20 +91,24 @@ independent task, and return — do not let sync block the whole build.
 ## Phase 5 — Polish, demo, deploy
 
 - [x] Health endpoints: GET /health (public) + GET /health/db (Clerk-guarded, 503 when the DB is down). (PR #28.)
+- [x] Husky pre-commit hook (typecheck only; lint left out until ESLint configs exist). (PR #30.)
+- [x] PWA PNG icons 192/512 + manifest wiring. (PRs #32, #34.)
+- [x] Demo data reset script + demo login instructions in README. (PR #31; README in this PR. Demo video still pending — needs the deployed demo.)
+- [x] README final: architecture diagram, sync explanation with diagram, tradeoffs (ADR summaries), what was cut and why, how to run tests. (This PR; demo URL marked TBD until deploy.)
+- [x] Accessibility pass: tap targets, contrast, keyboard navigation, screen-reader labels on status buttons. (PR #33.)
+- [x] Performance pass: board query indexes verified, photo compression verified, bundle check. Lighthouse PWA check outstanding (no Chrome in the verification VM). (See 15-DECISIONS.md.)
+- [x] CI workflow: typecheck + tests + migration-drift check on every PR. (PR #35; lint omitted, E2E not in CI — see 15-DECISIONS.md.)
 - [ ] Staging + production deploys (Vercel + Fly.io + Neon + Upstash + R2), env vars, Sentry.
-- [ ] Demo data reset script, demo login instructions in README, 2-minute demo video.
-- [ ] README final: architecture diagram, sync explanation with diagram, tradeoffs (ADR summaries), what was cut and why, how to run tests.
-- [ ] Accessibility pass: tap targets, contrast, keyboard navigation, screen-reader labels on status buttons.
-- [ ] Performance pass: board query indexes verified, photo compression verified, bundle check, Lighthouse PWA check.
 - [ ] Final E2E suite green in CI.
+- [ ] 2-minute demo video (needs the deployed demo + a real phone pass).
 
-Status, 2026-10-31: health endpoints done (PR #28, 53 API tests). Live core verification passed Oct 31 (see 15-DECISIONS.md); remaining: deploys, demo reset, README, accessibility, performance, E2E, plus the browser sign-in journey, Yjs server, live photo/PDF, and offline demo flow.
+Status, 2026-10-31: all Phase 5 code/docs slices done except deploys, E2E, and the demo video (all need deployment access). 53 API tests, API + web typecheck pass. Live core verification passed Oct 31 (see 15-DECISIONS.md); remaining live work: browser sign-in journey, Yjs server, live photo/PDF, and the offline demo flow.
 
 ## Open blockers (all pending, none faked)
 
 - Browser sign-in journey with a real Clerk test user, Yjs websocket server, live photo upload/PDF download, full offline demo flow (live core verification — Neon seed, API guards, web boot — passed Oct 31; see 15-DECISIONS.md).
-- Husky pre-commit (Phase 0 tooling; Phase 5 slice pending).
-- PNG PWA icons (Phase 5 slice pending).
+- Deploys: Vercel account not connected, no Fly.io access/token, no Sentry DSN; no Dockerfile/fly.toml yet. Demo URL + demo video wait on this.
+- E2E suite: needs a staging URL + Clerk test credentials.
 - Running Postgres/Redis in this VM (wiped by VM restarts; live verification uses Neon/Upstash via a loopback TLS proxy — see 15-DECISIONS.md; Docker on a developer machine is the intended route).
 
 ## Phase 3 — Realtime + map + Yjs notes
