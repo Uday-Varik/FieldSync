@@ -1,0 +1,5 @@
+#!/usr/bin/env sh
+# Husky pre-commit (Phase 5). Typecheck only: neither workspace has
+# an ESLint config yet, so lint cannot pass and is left out until
+# configs exist. Keep this hook fast and green.
+npm run typecheck --workspaces --if-present
