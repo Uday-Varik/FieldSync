@@ -1,7 +1,7 @@
 # FieldSync — Planning Pack Index
 
 **Project:** FieldSync — offline-first, real-time dispatch and job tracking for field service teams (electricians, HVAC, solar installers, plumbers).
-**Status:** BUILDING — Phase 0 partial, Phase 1 API core merged (PR #2, #3, #7, #8, #6). See `16-PROJECT-TRACKING.md` for the current task status; the original planning-only note is superseded by the build.
+**Status:** BUILDING — Phases 1–4 DONE (code + tests + typecheck; PRs #2–#26, main at `4feb50e2`); live end-to-end verification outstanding. See `16-PROJECT-TRACKING.md` for the current task status; the original planning-only note is superseded by the build.
 **Chosen from:** Project 1 of the 3 standout portfolio projects (FieldSync / ClauseWise / FixMap).
 **Goal of this pack:** Anyone (including a future build session) can start building without re-deciding scope, stack, data model, or sync rules.
 

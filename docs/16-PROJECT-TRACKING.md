@@ -89,13 +89,13 @@ the whole build.
 
 ## Phase 4 — Offline-first + sync (DO NOT RUSH)
 
-- [ ] Dexie schema: jobs, outbox, photoBlobs, syncMeta. Auto-cache today's/tomorrow's assigned jobs.
-- [ ] Outbox writer: every technician mutation writes local + outbox in one transaction. Optimistic UI + pending badges + offline banner.
-- [ ] Sync worker: online event, app start, 30s interval; per-job FIFO, max 3 concurrent jobs; idempotency keys.
-- [ ] Server `/sync` endpoint: authorise → idempotency → validate → field-level conflict rules → audit → broadcast.
-- [ ] Photo offline: Blob storage, upload-after-metadata flow, retry UI.
-- [ ] Conflict UX: dispatcher timeline notes + technician banner + rejected-status notice.
-- [ ] Full sync test suite — all 7 must-pass cases green.
+- [x] Dexie schema: jobs, outbox, photoBlobs, syncMeta. Auto-cache today's/tomorrow's assigned jobs. (PR #25.)
+- [x] Outbox writer: every technician mutation writes local + outbox in one transaction. Optimistic UI + pending badges + offline banner. (PR #25.)
+- [x] Sync worker: online event, app start, 30s interval; per-job FIFO, max 3 concurrent jobs; idempotency keys. (PR #25.)
+- [x] Server `/sync` endpoint: authorise → idempotency → validate → field-level conflict rules → audit → broadcast. (PR #24.)
+- [x] Photo offline: Blob storage, upload-after-metadata flow, retry UI. (PR #26.)
+- [x] Conflict UX: dispatcher timeline notes + technician banner + rejected-status notice. (PR #26.)
+- [x] Full sync test suite — all 7 must-pass cases green server-side (46→47 API tests). Live end-to-end demo flow outstanding with live verification. (PRs #24, #26.)
 
 Timebox note: if sync blocks, write the blocker here, move to an
 independent task, and return — do not let sync block the whole build.
@@ -125,3 +125,11 @@ independent task, and return — do not let sync block the whole build.
 - [x] Yjs notes: editor with y-websocket provider when configured, Awareness presence, snapshot save/load via /jobs/:id/notes/snapshot to JobNoteDocument.yjsSnapshot. (PR #22; files landed via GitHub web upload after connector push approval cards timed out five times — see DECISIONS.md. package-lock.json not updated in that slice; regenerate with npm install before npm ci.)
 
 Phase 3 verdict: DONE (code + tests + typecheck), 2026-10-30. All API tests 38 passing, API + web typecheck pass. Caveat, kept explicit: live end-to-end verification with real Clerk keys, a running Postgres/Redis, an S3/R2 bucket, a Mapbox token, and a Yjs websocket server is still outstanding (deferred by the user to the next day).
+
+## Phase 4 — Offline-first + sync
+
+- [x] Server /sync: per-mutation transactions, idempotency before authorisation (see DECISIONS.md), field-level conflict rules, audit with offline:true + clientMutationId, job:updated broadcast. (PR #24.)
+- [x] Dexie outbox + sync worker + offline caching, offline-capable status/checklist/notes actions, offline banner + pending counts. (PR #25; reconcile() pure functions verified in plain Node.)
+- [x] Conflict UX: technician dismissible banner from conflictDetails, persistent rejected notices with Discard, dispatcher timeline entries. Offline photos: Blob storage (warn 200 MB, block 500 MB), ADD_PHOTO_META, upload-after-metadata with storageKey reuse. (PR #26.)
+
+Phase 4 verdict: DONE (code + tests + typecheck), 2026-10-30. All API tests 47 passing, API + web typecheck pass. Caveat, kept explicit: live end-to-end verification with real Clerk keys, a running Postgres/Redis, an S3/R2 bucket, a Mapbox token, and a Yjs websocket server is still outstanding (deferred by the user to the next day), including the full offline demo flow (technician completes a job fully offline, syncs on reconnect, dispatcher sees COMPLETED + PDF) and the live photo upload.
