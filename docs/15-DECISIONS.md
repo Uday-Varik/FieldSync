@@ -319,3 +319,43 @@ are not repeated here except where implementation changed them.
 - Health endpoints (2026-10-31, PR #28): GET /health
   public, GET /health/db Clerk-guarded with 503 when
   the DB is down; Redis unconfigured is not degraded.
+- Husky hook runs typecheck only (2026-10-31, PR #30):
+  neither workspace has an ESLint config, so lint
+  cannot pass today; adding configs is a separate
+  follow-up, not hidden inside the hook.
+- PWA icons (2026-10-31, PRs #32, #34): PNGs generated
+  from the SVG design (green rounded square, white FS)
+  and uploaded via the GitHub web UI, because the
+  connector push handles text files only; blob SHAs
+  verified byte-identical to the generated files.
+  Manifest purpose is "any", not "maskable": the
+  design fills the whole square, so maskable safe-zone
+  cropping would cut the letters.
+- Demo reset (2026-10-31, PR #31): deletes ONLY the
+  demo company by fixed COMPANY_ID, children first,
+  then re-seeds through the existing seed script;
+  refuses without ALLOW_DEMO_SEED=true; never an
+  endpoint. Rows only — demo storage objects stay.
+- CI deviation (2026-10-31, PR #35): the workflow
+  runs typecheck, tests, migrate deploy, and a
+  migration-drift check, but no lint (no ESLint
+  configs — same reason as the Husky hook) and no
+  E2E job (needs staging + Clerk test credentials).
+  The file landed via the web UI: the GitHub App
+  returned 403 on .github/workflows (no workflows
+  permission). Content verified byte-identical.
+- Performance pass (2026-10-31): board list query
+  (companyId + status/scheduledDate, ordered by
+  scheduledDate) is covered by the Job indexes;
+  photo compression verified client-side (downscale
+  + JPEG 0.8) and server-side (Jimp 300px thumbs);
+  production build First Load JS 119-191 kB per
+  route (shared 87.3 kB). Lighthouse not run: no
+  Chrome in the verification VM.
+- Accessibility pass (2026-10-31, PR #33): labels
+  on every form control, screen-reader labels on
+  status buttons, 44px tap targets, aria-live
+  result messages, focus rings intact (no outline
+  suppression anywhere). Known limitation: the
+  signature canvas is pointer/touch only; keyboard
+  users complete via dispatcher/admin override.
