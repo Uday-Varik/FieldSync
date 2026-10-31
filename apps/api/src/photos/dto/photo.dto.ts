@@ -6,6 +6,13 @@ export class PhotoUploadUrlDto {
 
   @IsString() @MinLength(1) @MaxLength(100)
   contentType!: string;
+
+  // Phase 4 offline photos: when a PENDING photo row was
+  // already created by a synced ADD_PHOTO_META mutation,
+  // the client passes its storageKey back so the upload
+  // goes to the exact key the metadata row references.
+  @IsOptional() @IsString() @MaxLength(500)
+  storageKey?: string;
 }
 
 export class PhotoConfirmDto {

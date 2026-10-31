@@ -309,6 +309,39 @@ export class SyncService {
         };
       }
 
+      case SyncMutationType.ADD_PHOTO_META: {
+        // Photos are additive and never conflict (docs/07
+        // §4). The metadata row is PENDING until the client
+        // uploads the binary to the same storageKey and
+        // confirms it (PhotosService handles the reuse).
+        if (job.status === 'COMPLETED' || job.status === 'CANCELLED') return { rejected: 'INVALID_STATE' };
+        const key = payload.storageKey;
+        if (typeof key !== 'string' || !key.startsWith(`jobs/${job.id}/`)) return { rejected: 'INVALID_PAYLOAD' };
+        if (typeof payload.originalFilename !== 'string' || payload.originalFilename.length === 0) return { rejected: 'INVALID_PAYLOAD' };
+        return {
+          conflict,
+          action: 'PHOTO_ADDED',
+          toValue: { storageKey: key, originalFilename: payload.originalFilename, offline: true },
+          apply: async (tx: any) => {
+            const existing = await tx.photo.findFirst({ where: { jobId: job.id, storageKey: key, deletedAt: null } });
+            if (!existing) {
+              await tx.photo.create({
+                data: {
+                  jobId: job.id,
+                  uploadedById: user.dbUser!.id,
+                  storageKey: key,
+                  originalFilename: payload.originalFilename,
+                  caption: payload.caption ?? null,
+                  fileSizeBytes: payload.fileSizeBytes ?? null,
+                  status: 'PENDING',
+                },
+              });
+            }
+            return tx.job.update({ where: { id: job.id }, data: { version: { increment: 1 } } });
+          },
+        };
+      }
+
       default:
         return { rejected: 'UNKNOWN_TYPE' };
     }

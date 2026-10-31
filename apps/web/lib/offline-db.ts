@@ -43,6 +43,7 @@ export interface CachedJob {
 export interface PhotoBlobRow {
   id: string;
   jobId: string;
+  storageKey: string;
   blob: Blob;
   originalFilename: string;
   caption?: string;

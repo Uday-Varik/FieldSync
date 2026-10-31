@@ -12,7 +12,7 @@ export class PhotosController {
 
   @Post('upload-url')
   uploadUrl(@CurrentUser() user: AuthUser, @Param('jobId') jobId: string, @Body() dto: PhotoUploadUrlDto) {
-    return this.photos.uploadUrl(user, jobId, dto.filename, dto.contentType);
+    return this.photos.uploadUrl(user, jobId, dto.filename, dto.contentType, dto.storageKey);
   }
 
   @Post('confirm')

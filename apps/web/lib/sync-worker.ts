@@ -155,11 +155,99 @@ export async function syncPending(getToken: () => Promise<string | null>) {
   return { ...totals, skipped: false };
 }
 
+export const PHOTO_BLOB_WARN_BYTES = 200 * 1024 * 1024;
+export const PHOTO_BLOB_MAX_BYTES = 500 * 1024 * 1024;
+
+function safeStorageKey(jobId: string, filename: string): string {
+  const safe = filename.replace(/[^a-zA-Z0-9._-]/g, '_').slice(0, 100);
+  return `jobs/${jobId}/${newClientMutationId()}-${safe}`;
+}
+
+/**
+ * Phase 4 offline photos (docs/07 §2): store the binary
+ * in IndexedDB, queue ADD_PHOTO_META in the outbox.
+ * Size cap: warn at 200 MB total cached, block new
+ * captures at 500 MB with a "sync first" error.
+ * Returns { storageKey, warned }.
+ */
+export async function storeOfflinePhoto(jobId: string, blob: Blob, originalFilename: string, clientVersion: number): Promise<{ storageKey: string; warned: boolean }> {
+  const db = getDb();
+  const rows = await db.photoBlobs.toArray();
+  const total = rows.reduce((sum, r) => sum + (r.blob?.size ?? 0), 0);
+  if (total + blob.size > PHOTO_BLOB_MAX_BYTES) {
+    throw new Error('Photo storage is full (500 MB). Sync your photos first, then capture again.');
+  }
+  const warned = total + blob.size > PHOTO_BLOB_WARN_BYTES;
+  const storageKey = safeStorageKey(jobId, originalFilename);
+  await enqueueMutation('ADD_PHOTO_META', jobId, { storageKey, originalFilename, fileSizeBytes: blob.size }, clientVersion);
+  await db.photoBlobs.add({
+    id: newClientMutationId(),
+    jobId,
+    storageKey,
+    blob,
+    originalFilename,
+    createdAt: new Date().toISOString(),
+    status: 'PENDING',
+  });
+  return { storageKey, warned };
+}
+
+export async function listPendingPhotoBlobs(jobId: string) {
+  const db = getDb();
+  return db.photoBlobs.where('jobId').equals(jobId).and((r) => r.status === 'PENDING').toArray();
+}
+
+/**
+ * Upload offline photo binaries after their metadata has
+ * synced: for each PENDING blob whose job has no pending
+ * outbox items left, request an upload URL for its exact
+ * storageKey, PUT the blob, confirm with the same key
+ * (the server reuses the PENDING row), then delete the
+ * local blob to free space. A failed upload leaves the
+ * blob PENDING for the next run; the metadata mutation
+ * is NOT marked failed — photo retry is separate from
+ * job field sync (docs/07 §2).
+ */
+export async function uploadOfflinePhotos(getToken: () => Promise<string | null>, jobId?: string) {
+  if (typeof window === 'undefined' || !navigator.onLine) return 0;
+  const db = getDb();
+  const rows = jobId ? await db.photoBlobs.where('jobId').equals(jobId).toArray() : await db.photoBlobs.toArray();
+  const pending = rows.filter((r) => r.status === 'PENDING');
+  let uploaded = 0;
+  const token = await getToken();
+  for (const row of pending) {
+    const stillPending = await db.outbox.where('jobId').equals(row.jobId).and((o) => o.status === 'PENDING').count();
+    if (stillPending > 0) continue;
+    try {
+      await db.photoBlobs.update(row.id, { status: 'UPLOADING' });
+      const { uploadUrl } = await apiCall(token, `/jobs/${row.jobId}/photos/upload-url`, 'POST', {
+        filename: row.originalFilename,
+        contentType: 'image/jpeg',
+        storageKey: row.storageKey,
+      });
+      const put = await fetch(uploadUrl, { method: 'PUT', body: row.blob, headers: { 'Content-Type': 'image/jpeg' } });
+      if (!put.ok) throw new Error(`Upload failed (${put.status})`);
+      await apiCall(token, `/jobs/${row.jobId}/photos/confirm`, 'POST', {
+        storageKey: row.storageKey,
+        originalFilename: row.originalFilename,
+        fileSizeBytes: row.blob.size,
+      });
+      await db.photoBlobs.delete(row.id);
+      uploaded++;
+    } catch {
+      await db.photoBlobs.update(row.id, { status: 'PENDING' });
+    }
+  }
+  return uploaded;
+}
+
 export function startSyncWorker(getToken: () => Promise<string | null>): () => void {
   let stopped = false;
   const run = () => {
     if (stopped) return;
-    void syncPending(getToken).catch(() => {});
+    void syncPending(getToken)
+      .then(() => uploadOfflinePhotos(getToken))
+      .catch(() => {});
   };
   run();
   const onOnline = () => run();
