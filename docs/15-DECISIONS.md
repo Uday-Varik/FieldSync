@@ -372,3 +372,15 @@ are not repeated here except where implementation changed them.
   generated Prisma Client for tsc. Edit via the web
   UI (workflows permission, as with the CI file
   itself); verified byte-identical to the swap.
+- Prisma engine target (2026-10-31): schema generator
+  now pins binaryTargets ["native",
+  "debian-openssl-3.0.x"], and the Dockerfile build
+  stage installs the openssl CLI before generate.
+  Fly deploy 2255208 crashed on startup: the client
+  had been generated for debian-openssl-1.1.x while
+  bookworm needs 3.0.x (Prisma falls back to 1.1.x
+  when it cannot detect OpenSSL). The release
+  command had already passed, so migrations were
+  fine; only the app process crashed, failing the
+  /health check. Generator-only change: no new
+  migration, migrate-diff unaffected.
