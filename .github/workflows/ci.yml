@@ -1,0 +1,62 @@
+# FieldSync CI (docs/09 §3): install, typecheck, unit tests, and a
+# Prisma migration check on every PR and every push to main.
+#
+# Lint is intentionally NOT run here: neither workspace has an ESLint
+# config yet, so `npm run lint` cannot pass. Adding configs is a
+# separate follow-up; CI must stay green on checks that exist.
+# Playwright E2E is not run here either: it needs a staging URL and
+# Clerk test credentials that do not exist yet (Phase 5 deploy work).
+name: CI
+
+on:
+  pull_request:
+  push:
+    branches: [main]
+
+jobs:
+  ci:
+    runs-on: ubuntu-latest
+    services:
+      postgres:
+        image: postgres:16
+        env:
+          POSTGRES_USER: postgres
+          POSTGRES_PASSWORD: postgres
+          POSTGRES_DB: fieldsync
+        ports:
+          - 5432:5432
+        options: >-
+          --health-cmd pg_isready
+          --health-interval 5s
+          --health-timeout 5s
+          --health-retries 10
+      redis:
+        image: redis:7
+        ports:
+          - 6379:6379
+        options: >-
+          --health-cmd "redis-cli ping"
+          --health-interval 5s
+          --health-timeout 5s
+          --health-retries 10
+    env:
+      DATABASE_URL: postgresql://postgres:postgres@localhost:5432/fieldsync
+      REDIS_URL: redis://localhost:6379
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: npm
+      - run: npm ci
+      - run: npm run typecheck --workspaces --if-present
+      - run: npx prisma generate --schema apps/api/prisma/schema.prisma
+      - run: npm run test --workspace=fieldsync-api
+      - run: npx prisma migrate deploy --schema apps/api/prisma/schema.prisma
+      - name: Check migrations match the schema (no drift)
+        run: >
+          npx prisma migrate diff
+          --from-migrations apps/api/prisma/migrations
+          --to-schema-datamodel apps/api/prisma/schema.prisma
+          --shadow-database-url postgresql://postgres:postgres@localhost:5432/fieldsync_shadow
+          --exit-code
