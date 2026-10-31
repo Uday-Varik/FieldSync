@@ -97,7 +97,7 @@ independent task, and return — do not let sync block the whole build.
 - [x] README final: architecture diagram, sync explanation with diagram, tradeoffs (ADR summaries), what was cut and why, how to run tests. (This PR; demo URL marked TBD until deploy.)
 - [x] Accessibility pass: tap targets, contrast, keyboard navigation, screen-reader labels on status buttons. (PR #33.)
 - [x] Performance pass: board query indexes verified, photo compression verified, bundle check. Lighthouse PWA check outstanding (no Chrome in the verification VM). (See 15-DECISIONS.md.)
-- [x] CI workflow: typecheck + tests + migration-drift check on every PR. (PR #35; lint omitted, E2E not in CI — see 15-DECISIONS.md.)
+- [x] CI workflow: typecheck + tests + migration-drift check on every PR. (PR #35; shadow-DB creation step PR #44; lint omitted, E2E not in CI — see 15-DECISIONS.md.)
 - [ ] Staging + production deploys (Vercel + Fly.io + Neon + Upstash + R2), env vars, Sentry.
 - [ ] Final E2E suite green in CI.
 - [ ] 2-minute demo video (needs the deployed demo + a real phone pass).
