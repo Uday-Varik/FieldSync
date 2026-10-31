@@ -384,3 +384,16 @@ are not repeated here except where implementation changed them.
   fine; only the app process crashed, failing the
   /health check. Generator-only change: no new
   migration, migrate-diff unaffected.
+
+- CI shadow database (2026-10-31, PR #44): the workflow
+  now creates the empty `fieldsync_shadow` database before
+  the migrate-diff drift check, via `prisma db execute`
+  against the postgres service's `postgres` maintenance
+  database. The drift check failed on main with P1003:
+  Prisma does not create the shadow database, and the
+  CI service starts with only `fieldsync`. No real
+  schema drift: the diff returns "No difference
+  detected" once the shadow database exists (verified
+  locally via a loopback TLS proxy to Neon). The first
+  web-UI edit mangled indentation (a72c020); fixed in
+  ee5db83, verified by YAML parse + diff before merge.
