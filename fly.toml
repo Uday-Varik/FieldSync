@@ -1,0 +1,31 @@
+# FieldSync API on Fly.io (Machines). The web app deploys to Vercel.
+# Secrets are NOT in this file: set them with `fly secrets set` or in
+# the Fly dashboard (DATABASE_URL, REDIS_URL, CLERK_SECRET_KEY,
+# CLERK_PUBLISHABLE_KEY, MAPBOX_TOKEN, S3_ENDPOINT, S3_BUCKET,
+# S3_REGION, S3_ACCESS_KEY_ID, S3_SECRET_ACCESS_KEY,
+# S3_FORCE_PATH_STYLE). The release command applies Prisma
+# migrations before each deploy; it needs DATABASE_URL set.
+app = "fieldsync-api"
+primary_region = "ord"
+
+[env]
+  NODE_ENV = "production"
+  PORT = "3001"
+
+[deploy]
+  release_command = "npx prisma migrate deploy --schema apps/api/prisma/schema.prisma"
+
+[http_service]
+  internal_port = 3001
+  force_https = true
+  auto_stop_machines = true
+  auto_start_machines = true
+  min_machines_running = 0
+  processes = ["app"]
+
+  [[http_service.checks]]
+    grace_period = "10s"
+    interval = "30s"
+    method = "GET"
+    path = "/health"
+    timeout = "5s"

@@ -1,0 +1,10 @@
+node_modules
+.git
+.env
+.env.local
+apps/api/dist
+apps/web/.next
+apps/web/out
+coverage
+*.log
+.DS_Store
