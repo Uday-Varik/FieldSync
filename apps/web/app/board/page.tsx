@@ -46,14 +46,14 @@ export default async function BoardPage({
       <h1>Dispatcher board</h1>
       <LiveBoard />
       <form method="get" style={{ display: 'flex', gap: '0.5rem', marginBottom: '1rem' }}>
-        <input name="search" placeholder="Search title or customer" defaultValue={searchParams?.search ?? ''} />
-        <select name="status" defaultValue={searchParams?.status ?? ''}>
+        <input name="search" aria-label="Search title or customer" placeholder="Search title or customer" defaultValue={searchParams?.search ?? ''} />
+        <select name="status" aria-label="Filter by status" defaultValue={searchParams?.status ?? ''}>
           <option value="">All statuses</option>
           {STATUSES.map((s) => (
             <option key={s} value={s}>{s}</option>
           ))}
         </select>
-        <button type="submit">Search</button>
+        <button type="submit" style={{ minHeight: '44px', padding: '0.75rem 1rem' }}>Search</button>
         <Link href="/board">Refresh</Link>
       </form>
       <p>{result.data?.total ?? jobs.length} job(s) found.</p>

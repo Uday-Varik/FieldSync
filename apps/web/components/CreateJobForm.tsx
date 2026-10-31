@@ -40,18 +40,18 @@ export default function CreateJobForm() {
   return (
     <form onSubmit={submit} style={{ display: 'flex', flexDirection: 'column', gap: '0.5rem', maxWidth: '480px' }}>
       {(['title', 'customerName', 'addressLine1', 'city', 'state', 'postalCode'] as const).map((k) => (
-        <input key={k} placeholder={k} required value={form[k]} onChange={(e) => set(k, e.target.value)} />
+        <input key={k} aria-label={k} placeholder={k} required value={form[k]} onChange={(e) => set(k, e.target.value)} />
       ))}
-      <input type="date" required value={form.scheduledDate} onChange={(e) => set('scheduledDate', e.target.value)} />
-      <input placeholder="Window start (09:00)" value={form.scheduledWindowStart} onChange={(e) => set('scheduledWindowStart', e.target.value)} />
-      <input placeholder="Window end (12:00)" value={form.scheduledWindowEnd} onChange={(e) => set('scheduledWindowEnd', e.target.value)} />
-      <select value={form.priority} onChange={(e) => set('priority', e.target.value)}>
+      <input type="date" aria-label="Scheduled date" required value={form.scheduledDate} onChange={(e) => set('scheduledDate', e.target.value)} />
+      <input aria-label="Window start" placeholder="Window start (09:00)" value={form.scheduledWindowStart} onChange={(e) => set('scheduledWindowStart', e.target.value)} />
+      <input aria-label="Window end" placeholder="Window end (12:00)" value={form.scheduledWindowEnd} onChange={(e) => set('scheduledWindowEnd', e.target.value)} />
+      <select aria-label="Priority" value={form.priority} onChange={(e) => set('priority', e.target.value)}>
         <option>LOW</option><option>NORMAL</option><option>HIGH</option><option>URGENT</option>
       </select>
-      <input placeholder="Assigned technician user id (optional)" value={form.assignedTechnicianId} onChange={(e) => set('assignedTechnicianId', e.target.value)} />
-      <textarea placeholder="Description (optional)" value={form.description} onChange={(e) => set('description', e.target.value)} />
-      <button type="submit">Create job</button>
-      {message && <p>{message}</p>}
+      <input aria-label="Assigned technician user id (optional)" placeholder="Assigned technician user id (optional)" value={form.assignedTechnicianId} onChange={(e) => set('assignedTechnicianId', e.target.value)} />
+      <textarea aria-label="Description (optional)" placeholder="Description (optional)" value={form.description} onChange={(e) => set('description', e.target.value)} />
+      <button type="submit" style={{ minHeight: '44px', padding: '0.75rem 1rem' }}>Create job</button>
+      {message && <p aria-live="polite">{message}</p>}
     </form>
   );
 }

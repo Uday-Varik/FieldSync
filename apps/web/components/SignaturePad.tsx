@@ -65,6 +65,7 @@ export default function SignaturePad({ jobId }: { jobId: string }) {
     <section style={{ border: '1px solid #ccc', padding: '1rem', marginTop: '1rem' }}>
       <h2>Customer signature</h2>
       <input
+        aria-label="Signed by (customer name)"
         placeholder="Signed by (customer name)"
         value={signedByName}
         onChange={(e) => setSignedByName(e.target.value)}
@@ -72,6 +73,8 @@ export default function SignaturePad({ jobId }: { jobId: string }) {
       />
       <canvas
         ref={canvasRef}
+        role="img"
+        aria-label="Signature drawing area. Draw with a pointer or touch; keyboard drawing is not supported."
         width={320}
         height={160}
         style={{ border: '1px solid #999', touchAction: 'none', width: '100%', maxWidth: '320px', background: '#fff' }}
@@ -91,7 +94,7 @@ export default function SignaturePad({ jobId }: { jobId: string }) {
           Save signature
         </button>
       </div>
-      {message && <p>{message}</p>}
+      {message && <p aria-live="polite">{message}</p>}
     </section>
   );
 }

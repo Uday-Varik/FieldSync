@@ -72,7 +72,7 @@ export default function ChecklistToggles({
           </li>
         ))}
       </ul>
-      {message && <p>{message}</p>}
+      {message && <p aria-live="polite">{message}</p>}
     </div>
   );
 }
