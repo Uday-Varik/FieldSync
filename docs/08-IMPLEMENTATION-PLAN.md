@@ -50,16 +50,16 @@ Tasks:
 
 DoD: Two browsers (dispatcher + technician) stay in sync live; notes merge when both edit; presence indicators work; map shows live positions for active jobs only.
 
-## Phase 4 — Offline-first + sync (Week 4–6, ~20–25 hrs) — DO NOT RUSH THIS
+## Phase 4 — Offline-first + sync [x] DONE (code + tests + typecheck), 2026-10-30 (PRs #24, #25, #26; live verification outstanding) (Week 4–6, ~20–25 hrs) — DO NOT RUSH THIS
 
 Tasks:
-- [ ] Dexie schema: jobs, outbox, photoBlobs, syncMeta. Auto-cache today's/tomorrow's assigned jobs on login/My Day open.
-- [ ] Outbox writer: every technician mutation writes local + outbox in one transaction. Optimistic UI + pending badges + offline banner.
-- [ ] Sync worker: online event, app start, 30s interval; per-job FIFO, max 3 concurrent jobs; idempotency keys.
-- [ ] Server `/sync` endpoint: authorise → idempotency → validate → field-level conflict rules → audit → broadcast. Per §07.
-- [ ] Photo offline: Blob storage, upload-after-metadata flow, retry UI.
-- [ ] Conflict UX: dispatcher timeline notes + technician banner + rejected-status notice.
-- [ ] Full sync test suite (see §07.8 + testing doc) — all 7 must-pass cases green.
+- [x] Dexie schema: jobs, outbox, photoBlobs, syncMeta. Auto-cache today's/tomorrow's assigned jobs on login/My Day open. (PR #25.)
+- [x] Outbox writer: every technician mutation writes local + outbox in one transaction. Optimistic UI + pending badges + offline banner. (PR #25.)
+- [x] Sync worker: online event, app start, 30s interval; per-job FIFO, max 3 concurrent jobs; idempotency keys. (PR #25.)
+- [x] Server `/sync` endpoint: authorise → idempotency → validate → field-level conflict rules → audit → broadcast. Per §07. (PR #24.)
+- [x] Photo offline: Blob storage, upload-after-metadata flow, retry UI. (PR #26.)
+- [x] Conflict UX: dispatcher timeline notes + technician banner + rejected-status notice. (PR #26.)
+- [x] Full sync test suite (see §07.8 + testing doc) — all 7 must-pass cases green server-side; live end-to-end demo flow still outstanding with live verification. (PRs #24, #26.)
 
 DoD: The demo flow works end-to-end offline (see PRD §6): technician completes a job fully offline, syncs on reconnect, dispatcher sees COMPLETED + PDF, and the conflict demo (reschedule vs notes) preserves both changes. No silent data loss in any test case.
 

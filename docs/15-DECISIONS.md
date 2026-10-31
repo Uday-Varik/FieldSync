@@ -265,3 +265,29 @@ are not repeated here except where implementation changed them.
   had been killed by a restart. package-lock.json was
   not updated in that upload and must be regenerated
   with npm install before npm ci is used.
+
+- Sync idempotency checked BEFORE authorisation (2026-10-30):
+  a replayed batch must return the stored result even if
+  the job has since been cancelled; checking authorisation
+  first would turn an applied change into a rejection and
+  duplicate audit entries on replay. The stored result
+  leaks nothing new to a removed user.
+- Sync checklist/note/signature/photo mutations bump Job.version
+  (2026-10-30): the REST checklist toggle does not bump the
+  job version, but sync-applied mutations bump it so the
+  client's clientVersion tracks sync-applied changes.
+- Offline photos: ADD_PHOTO_META creates a PENDING Photo row;
+  upload-url accepts the same storageKey only when a PENDING
+  row exists for that job; confirm reuses that row instead
+  of creating a duplicate (2026-10-30). Photo upload retry
+  is separate from job field sync: a failed binary upload
+  leaves the blob PENDING and never fails the metadata sync.
+- Conflict UX: technician banner text is generated from
+  conflictDetails, not hardcoded; rejected outbox items
+  offer Discard only, never Retry (server rejections are
+  not transient). Dispatcher timeline shows offline sync
+  entries with conflict details inline (2026-10-30).
+- Connector push for the conflict-photos slice was killed
+  by a service restart mid-call; the commit (d39cab8f)
+  had already landed, verified by remote readback before
+  the PR was created — no duplicate push was sent.
