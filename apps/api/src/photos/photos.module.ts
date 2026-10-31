@@ -11,6 +11,6 @@ import { RealtimeModule } from '../realtime/realtime.module';
   imports: [AuthModule, RealtimeModule],
   controllers: [PhotosController],
   providers: [PhotosService, StorageService, ThumbnailService, ThumbnailQueue],
-  exports: [PhotosService],
+  exports: [PhotosService, ThumbnailQueue],
 })
 export class PhotosModule {}

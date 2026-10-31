@@ -16,8 +16,9 @@ import { ChecklistModule } from './checklist/checklist.module';
 import { PhotosModule } from './photos/photos.module';
 import { RealtimeModule } from './realtime/realtime.module';
 import { SyncModule } from './sync/sync.module';
+import { HealthModule } from './health/health.module';
 
 @Module({
-  imports: [PrismaModule, AuthModule, CompaniesModule, JobsModule, ChecklistModule, PhotosModule, RealtimeModule, SyncModule],
+  imports: [PrismaModule, AuthModule, CompaniesModule, JobsModule, ChecklistModule, PhotosModule, RealtimeModule, SyncModule, HealthModule],
 })
 export class AppModule {}
