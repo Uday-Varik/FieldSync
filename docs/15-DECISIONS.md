@@ -366,3 +366,9 @@ are not repeated here except where implementation changed them.
   exit 127 ("husky: command not found"). Git hooks
   are pointless on a build machine; on developer
   machines husky still installs normally.
+- CI step order (2026-10-31, PR #40): Prisma generate
+  now runs before typecheck. The first CI runs failed
+  on typecheck because a fresh checkout has no
+  generated Prisma Client for tsc. Edit via the web
+  UI (workflows permission, as with the CI file
+  itself); verified byte-identical to the swap.
