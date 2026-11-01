@@ -108,6 +108,10 @@ export default async function JobDetailPage({ params }: { params: { id: string }
   const mapsUrl = `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(address)}`;
   const statusKey = job.status in STATUS_DISPLAY ? (job.status as JobStatusKey) : null;
   const priorityKey = job.priority in PRIORITY_DISPLAY ? (job.priority as PriorityKey) : null;
+  // Unknown status/priority values (not one of the seven /
+  // four keys) are shown humanised with spaces, as in the
+  // map panel and job cards — never a raw code.
+  const humaniseCode = (code: unknown): string => String(code).replaceAll('_', ' ');
   const signature = (job.signatures ?? [])[0] as any;
   const isTerminal = job.status === 'COMPLETED' || job.status === 'CANCELLED';
 
@@ -128,8 +132,8 @@ export default async function JobDetailPage({ params }: { params: { id: string }
       <header className={styles.header}>
         <h1>{job.title}</h1>
         <div className={styles.pills}>
-          {statusKey ? <StatusPill status={statusKey} /> : <span>{job.status}</span>}
-          {priorityKey ? <PriorityBadge priority={priorityKey} /> : <span>{job.priority}</span>}
+          {statusKey ? <StatusPill status={statusKey} /> : <span>{humaniseCode(job.status)}</span>}
+          {priorityKey ? <PriorityBadge priority={priorityKey} /> : <span>{humaniseCode(job.priority)}</span>}
           <PendingSyncDot jobId={job.id} />
         </div>
       </header>

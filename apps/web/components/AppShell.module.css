@@ -118,10 +118,12 @@
   min-height: 44px;
 }
 
+/* The skip-link target. No outline suppression here:
+   the target must show the global focus ring when the
+   skip link moves focus to it (docs/17 §1.11). */
 .content {
   max-width: 1280px;
   margin-inline: auto;
-  outline: none;
 }
 
 @media (min-width: 720px) {

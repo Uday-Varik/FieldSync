@@ -1,0 +1,22 @@
+/* Offline banner slot (docs/17 slice (e)). The banner
+   aligns with the page content column (AppShell .content:
+   max-width 1280px) instead of running full-bleed. Tokens
+   only — the warning/error pairs come from Banner. */
+
+.wrap {
+  padding: var(--space-4) var(--space-4) 0;
+}
+
+@media (min-width: 1024px) {
+  .wrap {
+    padding-inline: var(--space-6);
+  }
+}
+
+@media (min-width: 1280px) {
+  .wrap {
+    max-width: 1280px;
+    margin-inline: auto;
+    padding-inline: var(--space-8);
+  }
+}

@@ -172,6 +172,7 @@ export default function MapView() {
       element.className = styles.pin;
       if (statusKey) element.dataset.status = statusKey;
       element.setAttribute('aria-label', `${job.title}, ${display.label}. Show this job.`);
+      element.setAttribute('aria-pressed', 'false');
       const glyph = document.createElement('span');
       glyph.setAttribute('aria-hidden', 'true');
       glyph.textContent = display.glyph;
@@ -316,7 +317,7 @@ export default function MapView() {
               {selectedIsPriorityKey ? (
                 <PriorityBadge priority={selected.priority} />
               ) : (
-                <span className="priority-badge">{selected.priority}</span>
+                <span className="priority-badge">{String(selected.priority).replaceAll('_', ' ')}</span>
               )}
               {selectedOverdue ? (
                 <span className={styles.overdueFlag}>
