@@ -129,3 +129,12 @@ Phase 3 verdict: DONE (code + tests + typecheck), 2026-10-30. All API tests 38 p
 Phase 4 verdict: DONE (code + tests + typecheck), 2026-10-30. All API tests 47 passing, API + web typecheck pass. Caveat, kept explicit: live end-to-end verification with real Clerk keys, a running Postgres/Redis, an S3/R2 bucket, a Mapbox token, and a Yjs websocket server is still outstanding (deferred by the user to the next day), including the full offline demo flow (technician completes a job fully offline, syncs on reconnect, dispatcher sees COMPLETED + PDF) and the live photo upload.
 
 Update, 2026-10-31: live core verification passed (Neon migrate + seed with exact counts, API guards return 401, web returns 200; see 15-DECISIONS.md for the VM-only proxy workaround). Browser sign-in journey, Yjs server, live photo/PDF, and the offline demo flow remain outstanding.
+
+## UI Redesign — audit + design system (docs/17-UI-REDESIGN.md)
+
+- [x] Audit slice: UI/UX audit of every web page/component at main 68694f5a, design tokens, status/priority system, hand-rolled CSS decision (no new dependency, no dark mode), slice plan (a)–(e), verification rules. Docs only; no code changed. Merged: PR #48.
+- [ ] Slice (a) — tokens + app shell (`globals.css`, layout shell, `components/ui/*`, shared style-value migration).
+- [ ] Slice (b) — board + My Day.
+- [ ] Slice (c) — job detail + creation.
+- [ ] Slice (d) — map + offline + auth pages.
+- [ ] Slice (e) — polish/accessibility pass + tracking. Visual browser pass pending for the main agent/user (no worker may claim it).
