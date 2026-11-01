@@ -40,6 +40,12 @@ The 2-minute demo flow: dispatcher creates and assigns a job (board + map) → t
 - **PWA**: installable (PNG 192/512 icons + SVG fallback), app-shell service worker that never caches API/Clerk/job pages, `/offline` fallback page.
 - **Health**: `GET /health` (public liveness) and `GET /health/db` (Clerk-guarded readiness; 503 when the database is down).
 
+## Design system (web UI)
+
+One token set, defined once in `apps/web/app/globals.css` (CSS custom properties: colour, type, spacing, radius, shadow, and the status/priority pairs), used by every page. Styles are hand-rolled CSS + colocated CSS Modules — no CSS framework, no component library, no webfonts, no new dependency. One light theme only: no dark mode.
+
+Status and priority are always shown together as colour + human label + glyph, never colour alone, via `StatusPill` / `PriorityBadge` in `apps/web/components/ui/`; the keys, labels, and glyphs mirror `STATUS_STYLES` / `PRIORITY_STYLES` in `packages/shared/src/index.ts`. Shared components in `apps/web/components/ui/` (`Button`, `Field`, `Banner`, `ConfirmBlock`, `EmptyState`, `Skeleton`, `PageHeader`, `JobCard`, `SyncBadge`) are the way to add a page or component consistently: reuse them, put page-specific styles in a colocated `.module.css` referencing tokens only, keep visible labels and 44px targets on every interactive element, and keep the visible focus ring. Full audit, token values, and decisions: `docs/17-UI-REDESIGN.md`; decision log: `docs/15-DECISIONS.md`.
+
 ## Architecture
 
 ```
@@ -58,7 +64,7 @@ The 2-minute demo flow: dispatcher creates and assigns a job (board + map) → t
                      URLs
 ```
 
-Stack, as built: Next.js 14 App Router + TypeScript + inline styles (no Tailwind, no TanStack Query — server components + `router.refresh()` cover the views); NestJS + TypeScript + Prisma 5; PostgreSQL; Redis + BullMQ (thumbnail queue only); Socket.io (single instance, no Redis adapter); Yjs for job notes only; Dexie for the offline outbox; Mapbox; Clerk; pdf-lib; Jest + ts-jest for tests; Husky pre-commit hook (typecheck).
+Stack, as built: Next.js 14 App Router + TypeScript + hand-rolled CSS (design tokens in `globals.css` + CSS Modules, no Tailwind — see [Design system](#design-system-web-ui); server components + `router.refresh()` cover the views, no TanStack Query); NestJS + TypeScript + Prisma 5; PostgreSQL; Redis + BullMQ (thumbnail queue only); Socket.io (single instance, no Redis adapter); Yjs for job notes only; Dexie for the offline outbox; Mapbox; Clerk; pdf-lib; Jest + ts-jest for tests; Husky pre-commit hook (typecheck).
 
 API modules: `auth` (Clerk verification, company/role guards), `companies` (creation + invites, SHA-256 hashed, 7-day expiry), `jobs` (CRUD, state machine, assign/cancel/reopen, PDF job sheets), `checklist`, `photos` (signed URLs, thumbnails), `sync` (the outbox intake — a first-class module, not an afterthought in `jobs`), `realtime` (Socket.io gateway, company rooms, presence), `health`.
 

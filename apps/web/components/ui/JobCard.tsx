@@ -89,7 +89,7 @@ export default function JobCard({
         {isPriorityKey(job.priority) ? (
           <PriorityBadge priority={job.priority} />
         ) : (
-          <span className="priority-badge">{job.priority}</span>
+          <span className="priority-badge">{job.priority.replaceAll('_', ' ')}</span>
         )}
       </div>
     </article>

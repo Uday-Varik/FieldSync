@@ -1,7 +1,14 @@
 # FieldSync — UI Redesign: Audit + Design-System Decisions
 
-Status: **audit slice done** (this document). No code changed in this
-slice. The implementation slices in §4 are not started.
+Status: **complete** — the audit below was implemented in
+slices (a)–(e), merged as PRs #49–#53 (2026-11-01). No code
+in §1–§4 has been rewritten to match the finished state: §1
+is the original audit evidence, §§2–3 are the decisions the
+slices followed, §4 is the work order as planned, and §5
+records what was verified vs what remains pending. The
+implementation slices in §4 are all done; the remaining
+verification (visual browser pass, signed-in flows, DB-backed
+checks) is recorded in §5 and in `docs/16-PROJECT-TRACKING.md`.
 
 Base: main `68694f5a88e1437e7137a0f327ee56b6f271ae79`
 ("Show sign-up/invite rules on unlinked accounts instead of API
@@ -1081,6 +1088,36 @@ assertion.
    for changed files) before the slice is reported done — per the
    branch-per-feature rule. A timed-out approval card is undecided:
    wait, never treat it as approval.
+
+### Verification status after slices (a)–(e)
+
+Slices (a)–(e) are merged (PRs #49–#53). Each slice's PR
+records its own evidence: web + API typecheck, `next build`
+for the web app, and a local boot exercising the routes it
+touched (200 + shell presence + no server errors, with the
+honest API-down state where no API was running). Slice (e)
+additionally verified by code inspection across all routes:
+one `#main-content` skip-link target wrapping one `<main>`
+per page, no nested landmarks, visible focus (no outline
+suppression), visible labels / `aria-describedby` /
+`aria-invalid` on every form, `aria-live` result messages,
+ConfirmBlock focus management with focus return, status
+shown as label + glyph + colour everywhere, static skeletons
+with no animation, and no remaining inline `style` props or
+raw status codes in user-visible UI.
+
+Still pending, honestly: the visual browser pass (desktop +
+phone width, board / My Day / job detail / map / auth) by the
+main agent or user; signed-in flows (a real Clerk browser
+sign-in, which no worker can do); and DB-backed verification
+of flows that need a running API + database (status moves,
+checklist, notes, photos, signature, PDF download, offline
+sync). Until those run, the redesign is verified by
+code readback, typecheck, build, and local boot only — not
+visually, not signed-in, and not against a live database.
+Deferred follow-ups from the slices (photo caption field,
+past-date overdue jobs on My Day, a dedicated sync-status
+screen) are recorded in `docs/15-DECISIONS.md`.
 
 ## Appendix — files read for this audit
 

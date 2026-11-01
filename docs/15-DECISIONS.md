@@ -568,3 +568,82 @@ are not repeated here except where implementation changed them.
   default appearance — only the sign-in/up cards take
   the §2 token appearance variables, per `docs/17` §3.3.
 
+## 2026-11-01 — UI Redesign close-out (slices (a)–(e) summary; slice (e) polish + accessibility)
+
+- What shipped, in one place: the audit in `docs/17-UI-REDESIGN.md`
+  (PR #48), then slices (a) tokens + shell (PR #49), (b) board +
+  My Day (PR #50), (c) job detail + creation (PR #51), (d) map +
+  offline + auth + home (PR #52), (e) polish / accessibility +
+  docs close-out (PR #53). No slice changed an API endpoint, a
+  payload, sync/offline semantics, auth, role scoping, or the
+  data model; every slice was presentation + accessibility only,
+  verified by typecheck + production build + local boot of the
+  routes it touched. Signed-in flows, a visual browser pass, and
+  DB-backed verification remain pending for the main agent/user
+  — see `docs/17` §5.
+- Design system, as built: one token set as CSS custom properties
+  in `apps/web/app/globals.css` (colour, type, spacing, radius,
+  shadow, status/priority pairs), hand-rolled CSS + colocated CSS
+  Modules, zero new dependencies, one light theme only — no dark
+  mode, no `prefers-color-scheme` handling, no theme toggle
+  (`docs/17` §§3.1, 3.4). Status and priority are always colour
+  + human label + glyph together, via `StatusPill` /
+  `PriorityBadge` (`apps/web/components/ui/StatusPill.tsx`) with
+  keys, labels, and glyphs mirrored from
+  `packages/shared/src/index.ts` (`STATUS_STYLES` /
+  `PRIORITY_STYLES`); raw status/priority codes do not appear in
+  user-visible UI, except an API error string quoted verbatim as
+  an error detail. Shared components live in
+  `apps/web/components/ui/` (`Button`, `Field`, `Banner`,
+  `ConfirmBlock`, `EmptyState`, `Skeleton`, `PageHeader`,
+  `JobCard`, `SyncBadge`, `StatusPill`/`PriorityBadge`); no
+  `Card` component was created — detail sections use their own
+  module styles, so no unused shared component ships.
+- Slice (e) closes the two items deferred from slice (d):
+  `OfflineBanner` is restyled with the token system via the
+  shared `Banner` component (no heading, so no h2 precedes the
+  page h1; offline keeps the danger pair, syncing keeps the
+  warning pair) and `PwaRegister` uses the shared `Button`.
+  Wording, sync-worker start, install-prompt handling, and
+  service-worker registration are exactly as before; only
+  presentation changed. The last inline `style` props in the
+  web app were those two components; none remain. The only
+  remaining hardcoded hex values in web code are the token
+  definitions in `globals.css`, the Clerk appearance literals
+  on the sign-in/up pages (Clerk takes literal values), the
+  layout `themeColor` metadata, and the documented white
+  signature-canvas drawing surface.
+- Slice (e) accessibility fixes, from a code-inspection pass
+  over every redesigned page (no live browser was available to
+  this worker, so the keyboard-only walkthrough in `docs/17`
+  §4 slice (e) was done by inspection, not by hand — a live
+  keyboard + visual pass is still pending): map pins grow from
+  32px to 44px with a 52px selected state, extending the 44px
+  rule (`docs/06` principle 1, `docs/17` §1.11) to the map
+  controls, and pins carry `aria-pressed="false"` from creation
+  (the selection effect already updated it afterwards);
+  `AppShell`'s `#main-content` skip-link target no longer
+  suppresses its outline, so keyboard focus on it is visible;
+  unknown status/priority fallbacks on the job detail page, the
+  map selected panel, and job cards show codes humanised with
+  spaces instead of raw codes. No token was added or changed
+  in slice (e). Contrast was computed in slice (e) with the
+  WCAG relative-luminance formula for the banner pairs only:
+  ink on warning background 14.33:1, ink on danger background
+  11.89:1, muted text on warning 5.77:1, muted text on danger
+  4.79:1 — all ≥ 4.5:1; the §2.1/§2.3 pair ratios from slice
+  (a) stand unchanged and are not re-claimed here.
+- Still deferred, not faked: a photo caption field (needs a
+  sync-worker/outbox change — slice (c)); past-date overdue
+  jobs on My Day (needs a query change — slice (b)); a
+  dedicated sync-status screen (a product decision, not a
+  styling slice — `docs/17` §1.9); keyboard drawing on the
+  signature canvas (pointer/touch only, honestly labelled,
+  dispatcher/admin override is the keyboard path — PR #33);
+  Clerk's `UserButton` / `SignInButton` internals keep Clerk
+  defaults (only the sign-in/up cards take token appearance
+  variables). The skip-link target is confirmed by inspection:
+  one `#main-content` `<div>` in `AppShell` wraps each page's
+  own single `<main>` (the map page returns `MapView`, which
+  renders the page's `<main>`); no route nests `<main>` inside
+  `<main>`.

@@ -169,8 +169,8 @@
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  width: 32px;
-  height: 32px;
+  width: 44px;
+  height: 44px;
   padding: 0;
   border: 2px solid;
   border-radius: 50% 50% 50% 0;
@@ -228,8 +228,8 @@
 }
 
 .pinSelected {
-  width: 40px;
-  height: 40px;
+  width: 52px;
+  height: 52px;
   outline: 3px solid var(--color-focus);
   outline-offset: 2px;
   z-index: 2;
