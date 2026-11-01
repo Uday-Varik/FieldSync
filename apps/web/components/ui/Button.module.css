@@ -1,0 +1,65 @@
+/* Button styles (docs/17 §2). Tokens only — no hex values.
+   Every variant is ≥ 44px tall; large is 52px for the
+   technician sticky bar. Focus uses the global :focus-visible
+   ring; outlines are never suppressed. */
+
+.button {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: var(--space-2);
+  min-height: 44px;
+  padding: var(--space-2) var(--space-4);
+  border: 1px solid var(--color-border-strong);
+  border-radius: var(--radius-control);
+  background: var(--color-surface);
+  color: var(--color-ink);
+  font-size: var(--text-base);
+  font-weight: 600;
+  cursor: pointer;
+  text-decoration: none;
+}
+
+.button:hover {
+  background: var(--color-surface-muted);
+}
+
+.button:disabled {
+  cursor: not-allowed;
+  opacity: 0.6;
+}
+
+.large {
+  min-height: 52px;
+  padding: var(--space-3) var(--space-4);
+}
+
+.primary {
+  border-color: var(--color-brand);
+  background: var(--color-brand);
+  color: var(--color-on-brand);
+}
+
+.primary:hover {
+  background: var(--color-brand-hover);
+}
+
+.destructive {
+  border-color: var(--color-danger);
+  background: var(--color-surface);
+  color: var(--color-danger);
+}
+
+.destructive:hover {
+  background: var(--color-danger-bg);
+}
+
+.ghost {
+  border-color: transparent;
+  background: transparent;
+  color: var(--color-brand);
+}
+
+.ghost:hover {
+  background: var(--color-surface-muted);
+}

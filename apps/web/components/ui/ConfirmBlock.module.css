@@ -1,0 +1,36 @@
+/* Confirm block styles (docs/17 §2). Tokens only — no hex
+   values. The danger border + raised shadow mark the block
+   as a decision point; the action text, not colour alone,
+   says what will happen. No motion, so reduced-motion needs
+   no special handling. */
+
+.confirm {
+  padding: var(--space-4);
+  border: 2px solid var(--color-danger);
+  border-radius: var(--radius-sheet);
+  background: var(--color-surface);
+  box-shadow: var(--shadow-raised);
+}
+
+.heading {
+  margin: 0 0 var(--space-2);
+  font-size: var(--text-lg);
+}
+
+.body {
+  margin-bottom: var(--space-4);
+}
+
+.body p {
+  margin: 0;
+}
+
+.body p + p {
+  margin-top: var(--space-2);
+}
+
+.actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-2);
+}

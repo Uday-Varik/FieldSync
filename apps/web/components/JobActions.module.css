@@ -1,0 +1,42 @@
+/* Job actions styles (docs/17 §2). Tokens only — no hex
+   values. Groups follow the existing layout: status moves,
+   assignment, then cancel/reopen with the shared reason
+   field. */
+
+.actions {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-4);
+}
+
+.heading {
+  margin: 0;
+  font-size: var(--text-xl);
+}
+
+.group {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2);
+}
+
+.groupLabel {
+  margin: 0;
+  font-size: var(--text-sm);
+  font-weight: 600;
+}
+
+.row {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-2);
+  align-items: flex-end;
+}
+
+.row > :first-child {
+  flex: 1 1 220px;
+}
+
+.message {
+  margin: 0;
+}

@@ -1,0 +1,60 @@
+/* Banner styles (docs/17 §§2.1, 2.3). Tokens only — no hex
+   values. The warning/error pairs reuse the existing banner
+   backgrounds from the offline/conflict surfaces. */
+
+.banner {
+  display: flex;
+  gap: var(--space-3);
+  padding: var(--space-4);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-card);
+  background: var(--color-surface);
+}
+
+.info {
+  background: var(--color-info-bg);
+  border-color: var(--color-border);
+}
+
+.warning {
+  background: var(--color-warning-bg);
+  border-color: var(--color-warning-border);
+}
+
+.error {
+  background: var(--color-danger-bg);
+  border-color: var(--color-danger-border);
+}
+
+.icon {
+  margin: 0;
+  font-size: var(--text-lg);
+  font-weight: 700;
+  line-height: 1.25;
+}
+
+.body {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2);
+  min-width: 0;
+}
+
+.heading {
+  margin: 0;
+  font-size: var(--text-lg);
+}
+
+.text p {
+  margin: 0;
+}
+
+.text p + p {
+  margin-top: var(--space-2);
+}
+
+.actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-2);
+}

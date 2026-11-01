@@ -1,0 +1,175 @@
+/* Job detail styles (docs/17 §§2.2, 2.4). Tokens only —
+   no hex values. Single column, 720px content width (the
+   existing value, kept). Sections are separated by space
+   and a heading each — no single long dump. The sticky
+   technician bar is styled in TechnicianStatusBar; this
+   file only gives the page enough bottom padding that the
+   bar never covers the last section when it sticks. */
+
+.page {
+  padding: var(--space-6) var(--space-4) var(--space-12);
+  max-width: 720px;
+  margin: 0 auto;
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-6);
+}
+
+.backNav {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-2);
+  margin: 0;
+}
+
+.textLink {
+  display: inline-flex;
+  align-items: center;
+  min-height: 44px;
+}
+
+.secondaryLink {
+  display: inline-flex;
+  align-items: center;
+  min-height: 44px;
+  padding: var(--space-2) var(--space-3);
+  border: 1px solid var(--color-border-strong);
+  border-radius: var(--radius-control);
+  background: var(--color-surface);
+  color: var(--color-ink);
+  font-weight: 600;
+  text-decoration: none;
+}
+
+.header h1 {
+  margin: 0 0 var(--space-3);
+}
+
+.pills {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-2);
+  align-items: center;
+}
+
+.section {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-3);
+}
+
+.sectionHeading {
+  margin: 0;
+  font-size: var(--text-xl);
+}
+
+.details {
+  display: grid;
+  grid-template-columns: max-content 1fr;
+  gap: var(--space-2) var(--space-4);
+  margin: 0;
+}
+
+.details dt {
+  font-weight: 600;
+}
+
+.details dd {
+  margin: 0;
+  overflow-wrap: anywhere;
+}
+
+.mono {
+  font-family: var(--font-mono);
+  font-size: var(--text-sm);
+  overflow-wrap: anywhere;
+}
+
+.contactActions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-2);
+  margin: 0;
+}
+
+.notesIntro {
+  margin: 0;
+  font-size: var(--text-sm);
+  color: var(--color-text-muted);
+}
+
+.notes {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-4);
+}
+
+.readonlyList {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2);
+}
+
+.readonlyList li {
+  min-height: 44px;
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+}
+
+.signatureMeta {
+  margin: 0;
+}
+
+.signatureImage {
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-control);
+  max-width: 320px;
+}
+
+.muted {
+  margin: 0;
+  color: var(--color-text-muted);
+}
+
+.timeline {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-4);
+}
+
+.timelineEntry {
+  padding-bottom: var(--space-3);
+  border-bottom: 1px solid var(--color-border);
+}
+
+.timelineEntry:last-child {
+  border-bottom: 0;
+  padding-bottom: 0;
+}
+
+.timelineTime {
+  margin: 0 0 var(--space-1);
+  font-size: var(--text-sm);
+  color: var(--color-text-muted);
+}
+
+.timelineEntry p {
+  margin: 0;
+}
+
+.timelineEntry p + p {
+  margin-top: var(--space-1);
+}
+
+@media (min-width: 1024px) {
+  .page {
+    padding-inline: var(--space-6);
+  }
+}

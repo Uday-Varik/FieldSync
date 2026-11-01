@@ -4,11 +4,19 @@ import { useRef, useState } from 'react';
 import { useAuth } from '@clerk/nextjs';
 import { useRouter } from 'next/navigation';
 import { apiCall } from '../lib/api-client';
+import Button from './ui/Button';
+import Field from './ui/Field';
+import styles from './SignaturePad.module.css';
 
 // Phase 2 signature capture: a canvas pad (mouse + touch
 // via pointer events). The PNG data URL goes to the API's
 // POST /jobs/:id/signature endpoint; S3 storage replaces
 // the data-URL storage in the photos slice.
+//
+// Redesign (docs/17 slice (c)): visible label, token
+// styles, busy state on save. Canvas size, the honest
+// keyboard limitation, and the dispatcher/admin override
+// path are preserved exactly.
 export default function SignaturePad({ jobId }: { jobId: string }) {
   const { getToken } = useAuth();
   const router = useRouter();
@@ -17,6 +25,7 @@ export default function SignaturePad({ jobId }: { jobId: string }) {
   const [signedByName, setSignedByName] = useState('');
   const [hasDrawing, setHasDrawing] = useState(false);
   const [message, setMessage] = useState('');
+  const [busy, setBusy] = useState(false);
 
   function point(e: React.PointerEvent) {
     const canvas = canvasRef.current!;
@@ -51,6 +60,7 @@ export default function SignaturePad({ jobId }: { jobId: string }) {
 
   async function save() {
     setMessage('');
+    setBusy(true);
     try {
       const imageDataUrl = canvasRef.current!.toDataURL('image/png');
       await apiCall(await getToken(), `/jobs/${jobId}/signature`, 'POST', { signedByName, imageDataUrl });
@@ -58,43 +68,47 @@ export default function SignaturePad({ jobId }: { jobId: string }) {
       setMessage('Signature saved. You can now complete the job.');
     } catch (err) {
       setMessage(err instanceof Error ? err.message : 'Failed.');
+    } finally {
+      setBusy(false);
     }
   }
 
   return (
-    <section style={{ border: '1px solid #ccc', padding: '1rem', marginTop: '1rem' }}>
-      <h2>Customer signature</h2>
-      <input
-        aria-label="Signed by (customer name)"
-        placeholder="Signed by (customer name)"
-        value={signedByName}
-        onChange={(e) => setSignedByName(e.target.value)}
-        style={{ width: '100%', padding: '0.5rem', marginBottom: '0.5rem', fontSize: '1rem' }}
-      />
+    <div className={styles.form}>
+      <h3 className={styles.heading}>Add a signature</h3>
+      <Field label="Signed by (customer name)" hint="The name of the person signing. Keyboard users complete the job through the dispatcher/admin override instead — the drawing area is pointer and touch only.">
+        <input type="text" value={signedByName} onChange={(e) => setSignedByName(e.target.value)} autoComplete="off" />
+      </Field>
       <canvas
         ref={canvasRef}
         role="img"
         aria-label="Signature drawing area. Draw with a pointer or touch; keyboard drawing is not supported."
         width={320}
         height={160}
-        style={{ border: '1px solid #999', touchAction: 'none', width: '100%', maxWidth: '320px', background: '#fff' }}
+        className={styles.canvas}
         onPointerDown={start}
         onPointerMove={move}
         onPointerUp={() => { drawing.current = false; }}
         onPointerLeave={() => { drawing.current = false; }}
       />
-      <div style={{ display: 'flex', gap: '0.5rem', marginTop: '0.5rem' }}>
-        <button type="button" style={{ minHeight: '44px', padding: '0.75rem 1rem' }} onClick={clear}>Clear</button>
-        <button
-          type="button"
-          style={{ minHeight: '44px', padding: '0.75rem 1rem' }}
+      <div className={styles.actions}>
+        <Button disabled={busy} onClick={clear}>
+          Clear
+        </Button>
+        <Button
+          variant="primary"
+          busy={busy}
           disabled={!hasDrawing || !signedByName.trim()}
           onClick={save}
         >
           Save signature
-        </button>
+        </Button>
       </div>
-      {message && <p aria-live="polite">{message}</p>}
-    </section>
+      {message && (
+        <p className={styles.message} aria-live="polite">
+          {message}
+        </p>
+      )}
+    </div>
   );
 }

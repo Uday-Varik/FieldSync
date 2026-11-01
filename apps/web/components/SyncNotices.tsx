@@ -3,6 +3,11 @@
 import { useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { getDb } from '../lib/offline-db';
+import { STATUS_DISPLAY, type JobStatusKey } from './ui/StatusPill';
+import { fieldLabel } from '../lib/activity-presentation';
+import Banner from './ui/Banner';
+import Button from './ui/Button';
+import styles from './SyncNotices.module.css';
 
 // Phase 4 conflict UX (docs/07 §5).
 //
@@ -19,12 +24,22 @@ import { getDb } from '../lib/offline-db';
 //   version. Retry is deliberately NOT offered for
 //   server rejections — only transient network failures
 //   are retryable, and those never reach FAILED.
+//
+// Redesign (docs/17 slice (c)): Banner adoption, and the
+// rule codes and raw mutation-type names are removed from
+// user view (docs/17 §§1.9, 2.3). The generated wording,
+// Discard-only semantics, and persistence are unchanged.
 function describeConflict(details: Record<string, any>): string {
-  const rule = details.rule ?? 'CONFLICT_RESOLVED';
-  if (details.serverStatus) return `Updated while you were offline: the job is now ${details.serverStatus}. Your notes and photos were kept. (Rule: ${rule})`;
-  if (details.fieldsApplied) return `Updated while you were offline: your changes to ${details.fieldsApplied.join(', ')} were applied, and other fields were preserved. (Rule: ${rule})`;
-  if (details.field) return `Updated while you were offline: your note was applied; the previous text is preserved in the job history. (Rule: ${rule})`;
-  return `Updated while you were offline. Your notes and photos were kept. (Rule: ${rule})`;
+  const serverStatus =
+    typeof details.serverStatus === 'string' && details.serverStatus in STATUS_DISPLAY
+      ? STATUS_DISPLAY[details.serverStatus as JobStatusKey].label
+      : null;
+  if (serverStatus) return `Updated while you were offline: the job is now ${serverStatus}. Your notes and photos were kept.`;
+  if (Array.isArray(details.fieldsApplied) && details.fieldsApplied.length > 0) {
+    return `Updated while you were offline: your changes to ${details.fieldsApplied.map((f: unknown) => fieldLabel(String(f))).join(', ')} were applied, and other fields were preserved.`;
+  }
+  if (details.field) return 'Updated while you were offline: your note was applied; the previous text is preserved in the job history.';
+  return 'Updated while you were offline. Your notes and photos were kept.';
 }
 
 export function ConflictBanner({ jobId }: { jobId: string }) {
@@ -63,26 +78,40 @@ export function ConflictBanner({ jobId }: { jobId: string }) {
 
   if (conflicts.length === 0) return null;
   return (
-    <div>
+    <div className={styles.notices}>
       {conflicts.map((c) => (
-        <section key={c.clientMutationId} style={{ border: '1px solid #b45309', background: '#fff3cd', padding: '1rem', marginTop: '1rem' }}>
+        <Banner
+          key={c.clientMutationId}
+          variant="warning"
+          heading="This job was updated while you were offline"
+          actions={
+            <Button onClick={() => dismiss(c.clientMutationId)}>Dismiss</Button>
+          }
+        >
           <p>{describeConflict(c.conflictDetails ?? {})}</p>
-          <button type="button" onClick={() => dismiss(c.clientMutationId)} style={{ minHeight: '44px', padding: '0.5rem 1rem' }}>
-            Dismiss
-          </button>
-        </section>
+        </Banner>
       ))}
     </div>
   );
 }
 
 const REJECT_REASONS: Record<string, string> = {
-  JOB_CANCELLED: 'the job is now CANCELLED',
-  ALREADY_COMPLETED: 'the job is already COMPLETED',
+  JOB_CANCELLED: 'the job is now cancelled',
+  ALREADY_COMPLETED: 'the job is already completed',
   INVALID_TRANSITION: 'that status change is not valid from the current status',
   SIGNATURE_REQUIRED: 'completing needs a signature first',
   FORBIDDEN: 'you are not allowed to make that change',
   INVALID_STATE: 'the job is in a state that does not allow that change',
+};
+
+const MUTATION_LABELS: Record<string, string> = {
+  UPDATE_STATUS: 'status change',
+  UPDATE_JOB_FIELDS: 'job details change',
+  TOGGLE_CHECKLIST: 'checklist change',
+  ADD_CHECKLIST_ITEM: 'checklist item',
+  ADD_NOTE: 'note',
+  ADD_SIGNATURE: 'signature',
+  ADD_PHOTO_META: 'photo',
 };
 
 export function FailedNotices({ jobId }: { jobId: string }) {
@@ -119,17 +148,21 @@ export function FailedNotices({ jobId }: { jobId: string }) {
 
   if (failed.length === 0) return null;
   return (
-    <div>
+    <div className={styles.notices}>
       {failed.map((item) => (
-        <section key={item.id} style={{ border: '1px solid #842029', background: '#f8d7da', padding: '1rem', marginTop: '1rem' }}>
+        <Banner
+          key={item.id}
+          variant="error"
+          heading="A change could not be applied"
+          actions={
+            <Button onClick={() => discard(item.id)}>Discard local change</Button>
+          }
+        >
           <p>
-            Your change ({item.type}) could not be applied because {REJECT_REASONS[item.error ?? ''] ?? item.error ?? 'the server rejected it'}.
-            The job shown here is the current server version.
+            Your {MUTATION_LABELS[item.type] ?? 'change'} could not be applied because{' '}
+            {REJECT_REASONS[item.error ?? ''] ?? 'the server rejected it'}. The job shown here is the current server version.
           </p>
-          <button type="button" onClick={() => discard(item.id)} style={{ minHeight: '44px', padding: '0.5rem 1rem' }}>
-            Discard local change
-          </button>
-        </section>
+        </Banner>
       ))}
     </div>
   );

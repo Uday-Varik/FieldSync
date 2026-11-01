@@ -1,0 +1,9 @@
+/* Sync notices layout (docs/17 §2). Tokens only — no hex
+   values. The banners themselves come from ui/Banner; this
+   file only stacks multiple notices. */
+
+.notices {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-3);
+}

@@ -1,0 +1,39 @@
+/* Technician status bar styles (docs/17 §§2.2, 2.4, 3.5).
+   Tokens only — no hex values. The bar is sticky at the
+   bottom of the viewport at thumb reach (docs/06 S21):
+   it stays reachable while the technician scrolls the
+   long detail page, and settles into its place at the end
+   of the page. No motion is added, so reduced-motion needs
+   no special handling. */
+
+.bar {
+  position: sticky;
+  bottom: var(--space-4);
+  z-index: 1;
+  padding: var(--space-4);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-sheet);
+  background: var(--color-surface);
+  box-shadow: var(--shadow-raised);
+}
+
+.heading {
+  margin: 0 0 var(--space-3);
+  font-size: var(--text-lg);
+}
+
+.buttons {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-2);
+}
+
+.note {
+  margin: var(--space-3) 0 0;
+  font-size: var(--text-sm);
+  color: var(--color-text-muted);
+}
+
+.state {
+  margin: 0;
+}

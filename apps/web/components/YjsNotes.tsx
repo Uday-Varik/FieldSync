@@ -5,8 +5,20 @@ import * as Y from 'yjs';
 import { WebsocketProvider } from 'y-websocket';
 import { useAuth } from '@clerk/nextjs';
 import { apiCall } from '../lib/api-client';
+import Button from './ui/Button';
+import Field from './ui/Field';
+import styles from './YjsNotes.module.css';
 
 // Phase 3 collaborative notes (Yjs).
+//
+// Redesign (docs/17 slice (c)): the two notes editors are
+// labelled for what they are — this one is the shared
+// document, separate from the job notes saved on the job
+// record (JobNotesForm). Neither mechanism is removed and
+// sync semantics are unchanged; only the headings, helper
+// text, and labels changed, and the configuration detail
+// (the environment variable name) no longer leaks into
+// user-facing copy.
 //
 // A Yjs document per job, with a Y.Text called 'notes'.
 // With NEXT_PUBLIC_YJS_WS_URL set, a y-websocket provider
@@ -28,6 +40,8 @@ export default function YjsNotes({ jobId, userName }: { jobId: string; userName:
   const [online, setOnline] = useState<string[]>([]);
   const [message, setMessage] = useState('');
   const [loaded, setLoaded] = useState(false);
+  const [busy, setBusy] = useState(false);
+  const liveSyncOn = Boolean(process.env.NEXT_PUBLIC_YJS_WS_URL);
 
   useEffect(() => {
     const doc = new Y.Doc();
@@ -100,6 +114,7 @@ export default function YjsNotes({ jobId, userName }: { jobId: string; userName:
 
   async function save() {
     setMessage('');
+    setBusy(true);
     try {
       const doc = docRef.current!;
       const update = Y.encodeStateAsUpdate(doc);
@@ -108,29 +123,32 @@ export default function YjsNotes({ jobId, userName }: { jobId: string; userName:
       setMessage('Notes snapshot saved.');
     } catch (e) {
       setMessage(e instanceof Error ? e.message : 'Failed.');
+    } finally {
+      setBusy(false);
     }
   }
 
   return (
-    <section style={{ border: '1px solid #ccc', padding: '1rem', marginTop: '1rem' }}>
-      <h2>Collaborative notes (Yjs)</h2>
-      <p style={{ fontSize: '0.9rem' }}>
-        {process.env.NEXT_PUBLIC_YJS_WS_URL
+    <section className={styles.panel} aria-label="Shared notes">
+      <h3 className={styles.heading}>Shared notes</h3>
+      <p className={styles.status}>
+        {liveSyncOn
           ? `Live sync on${online.length > 0 ? ` · Editing now: ${online.join(', ')}` : ''}`
-          : 'Local Yjs document — set NEXT_PUBLIC_YJS_WS_URL for live multi-user sync. Save below persists a snapshot to the job.'}
+          : 'Live sync is not set up in this deployment, so edits stay on this device until you save a snapshot. Saving below stores a snapshot on the job.'}
       </p>
-      <textarea
-        aria-label="Shared job notes"
-        value={value}
-        onChange={(e) => onChange(e.target.value)}
-        rows={6}
-        style={{ width: '100%', fontSize: '1rem', padding: '0.5rem' }}
-        placeholder="Shared job notes…"
-      />
-      <button type="button" onClick={save} disabled={!loaded} style={{ minHeight: '44px', padding: '0.75rem 1rem', marginTop: '0.5rem' }}>
-        Save notes snapshot
-      </button>
-      {message && <p aria-live="polite">{message}</p>}
+      <Field label="Shared job notes" hint="A separate shared document from the job notes above. Edits here do not appear in the job notes, and job-note edits do not appear here.">
+        <textarea value={value} onChange={(e) => onChange(e.target.value)} rows={6} />
+      </Field>
+      <div className={styles.actions}>
+        <Button busy={busy} disabled={!loaded} onClick={save}>
+          Save notes snapshot
+        </Button>
+      </div>
+      {message && (
+        <p className={styles.message} aria-live="polite">
+          {message}
+        </p>
+      )}
     </section>
   );
 }

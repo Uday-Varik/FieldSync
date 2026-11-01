@@ -1,0 +1,5 @@
+/* Job sheet download styles (docs/17 §2). Tokens only. */
+
+.message {
+  margin: var(--space-2) 0 0;
+}
