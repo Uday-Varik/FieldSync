@@ -578,7 +578,7 @@ on white, in bright field conditions (see §3.5), at WCAG AA.
 | `--color-ink` | `#1c2420` | Primary text, headings |
 | `--color-text-muted` | `#55625b` | Secondary text, metadata, timestamps. Target ≥ 4.5:1 on white — verify in slice (a). |
 | `--color-border` | `#d3d8d4` | Card/section/input borders (replaces scattered `#ccc`) |
-| `--color-border-strong` | `#9aa39d` | Input borders at rest where `#ccc` is too faint; focus state uses `--color-focus` |
+| `--color-border-strong` | `#767f79` | Input borders at rest where `#ccc` is too faint; focus state uses `--color-focus` |
 | `--color-brand` | `#0f5132` | Primary buttons, active nav, links on emphasis, header wordmark |
 | `--color-brand-hover` | `#0b3d26` | Primary button hover/active |
 | `--color-on-brand` | `#ffffff` | Text/icons on brand fill |
@@ -604,6 +604,13 @@ Rules:
 - Mapbox basemap stays `streets-v12`; marker colours come from
   §2.3 tokens, not from the two hardcoded values in `MapView`
   today.
+
+Slice (a) adjustment (2026-11-01): `--color-border-strong`
+shipped as `#767f79`, not the `#9aa39d` in the table as first
+drafted, because `#9aa39d` measured 2.59:1 against white, below
+the 3:1 non-text target for input boundaries; `#767f79` measures
+4.13:1. All other §2.1/§2.3 text pairs measured ≥ 4.5:1 in
+slice (a) (see its PR description for the full ratio list).
 
 ### 2.2 Type, spacing, radius, shadow, motion
 

@@ -133,7 +133,7 @@ Update, 2026-10-31: live core verification passed (Neon migrate + seed with exac
 ## UI Redesign — audit + design system (docs/17-UI-REDESIGN.md)
 
 - [x] Audit slice: UI/UX audit of every web page/component at main 68694f5a, design tokens, status/priority system, hand-rolled CSS decision (no new dependency, no dark mode), slice plan (a)–(e), verification rules. Docs only; no code changed. Merged: PR #48.
-- [ ] Slice (a) — tokens + app shell (`globals.css`, layout shell, `components/ui/*`, shared style-value migration).
+- [x] Slice (a) — tokens + app shell (`globals.css`, layout shell, `AppShell`, `components/ui/StatusPill.tsx`, shared style-value migration). Merged: PR #49 (https://github.com/Uday-Varik/FieldSync/pull/49).
 - [ ] Slice (b) — board + My Day.
 - [ ] Slice (c) — job detail + creation.
 - [ ] Slice (d) — map + offline + auth pages.

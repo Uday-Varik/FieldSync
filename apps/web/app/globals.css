@@ -1,0 +1,289 @@
+/*
+ * FieldSync design tokens — docs/17-UI-REDESIGN.md §2.
+ *
+ * One token set, defined once, used everywhere. Component styles
+ * reference these custom properties only; no token may be
+ * redefined per page or per component, and no new hex value may
+ * be introduced in component styles.
+ *
+ * One light theme only (docs/17 §3.4): no dark token set, no
+ * prefers-color-scheme handling, no theme toggle. The
+ * --color-border-strong value is #767f79, adjusted in slice (a)
+ * from the #9aa39d first drafted in docs/17: #9aa39d measured
+ * 2.59:1 against white, below the 3:1 non-text target for input
+ * boundaries; #767f79 measures 4.13:1. See docs/17 §2.1.
+ */
+
+:root {
+  /* Colour (§2.1). Brand anchor: the existing #0f5132. */
+  --color-surface: #ffffff;
+  --color-surface-muted: #f2f4f3;
+  --color-ink: #1c2420;
+  --color-text-muted: #55625b;
+  --color-border: #d3d8d4;
+  --color-border-strong: #767f79;
+  --color-brand: #0f5132;
+  --color-brand-hover: #0b3d26;
+  --color-on-brand: #ffffff;
+  --color-focus: #005fcc;
+  --color-danger: #b3261e;
+  --color-danger-bg: #f8d7da;
+  --color-danger-border: #842029;
+  --color-warning-bg: #fff3cd;
+  --color-warning-border: #b45309;
+  --color-info-bg: #e8f0fe;
+  --color-success: #0f5132;
+
+  /* Type (§2.2). System font stack only — no webfont dependency,
+     so nothing is fetched externally (offline/PWA). Base 16px;
+     line-height 1.5 body, 1.25 headings; weights 400/600/700. */
+  --font-sans: system-ui, -apple-system, "Segoe UI", Roboto,
+    "Helvetica Neue", Arial, sans-serif;
+  --font-mono: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+  --text-xs: 12px;
+  --text-sm: 14px;
+  --text-base: 16px;
+  --text-lg: 18px;
+  --text-xl: 20px;
+  --text-2xl: 24px;
+  --text-3xl: 32px;
+
+  /* Spacing (§2.2): 4px base, steps only. */
+  --space-1: 4px;
+  --space-2: 8px;
+  --space-3: 12px;
+  --space-4: 16px;
+  --space-6: 24px;
+  --space-8: 32px;
+  --space-12: 48px;
+
+  /* Radius and shadow (§2.2). Two shadow levels only; no shadow
+     on buttons or inputs. */
+  --radius-control: 6px;
+  --radius-card: 8px;
+  --radius-sheet: 12px;
+  --shadow-card: 0 1px 2px rgba(28, 36, 32, 0.08);
+  --shadow-raised: 0 4px 16px rgba(28, 36, 32, 0.14);
+
+  /*
+   * Responsive breakpoints (§2.4), recorded here for reference.
+   * Custom properties cannot be used in media-query conditions,
+   * so the queries in CSS Modules use these literal values:
+   * tablet 720px, desktop 1024px, wide 1280px. Base stylesheet
+   * is the phone layout; wider layouts are progressive
+   * enhancement via min-width queries only.
+   */
+  --bp-tablet: 720px;
+  --bp-desktop: 1024px;
+  --bp-wide: 1280px;
+
+  /* Status pairs (§2.3). Every status is identified by colour +
+     a text label + a glyph together — never colour alone. The
+     data-status values are the token references defined in
+     packages/shared STATUS_STYLES. */
+  --status-scheduled-bg: #e8eae9;
+  --status-scheduled-text: #37413b;
+  --status-scheduled-border: #c9cfcb;
+  --status-en-route-bg: #dbeafe;
+  --status-en-route-text: #1e3a5f;
+  --status-en-route-border: #93b4d8;
+  --status-on-site-bg: #ede9fe;
+  --status-on-site-text: #3d2a6e;
+  --status-on-site-border: #c4b5fd;
+  --status-in-progress-bg: #fef3c7;
+  --status-in-progress-text: #5c3d05;
+  --status-in-progress-border: #e5c15c;
+  --status-on-hold-bg: #e5e5e5;
+  --status-on-hold-text: #3f3f46;
+  --status-on-hold-border: #a1a1aa;
+  --status-completed-bg: #dcfce7;
+  --status-completed-text: #14532d;
+  --status-completed-border: #86c9a0;
+  --status-cancelled-bg: #fee2e2;
+  --status-cancelled-text: #7f1d1d;
+  --status-cancelled-border: #e5a3a3;
+
+  /* Priority pairs (§2.3). LOW and NORMAL share a pair
+     deliberately — neither needs to demand attention. The
+     data-priority values are the token references defined in
+     packages/shared PRIORITY_STYLES. */
+  --priority-urgent-bg: #fee2e2;
+  --priority-urgent-text: #7f1d1d;
+  --priority-high-bg: #fef3c7;
+  --priority-high-text: #5c3d05;
+  --priority-neutral-bg: #e8eae9;
+  --priority-neutral-text: #37413b;
+}
+
+/* Reset + base type. */
+
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+}
+
+html {
+  -webkit-text-size-adjust: 100%;
+}
+
+body {
+  margin: 0;
+  font-family: var(--font-sans);
+  font-size: var(--text-base);
+  line-height: 1.5;
+  color: var(--color-ink);
+  background: var(--color-surface);
+}
+
+h1,
+h2,
+h3,
+h4 {
+  line-height: 1.25;
+  font-weight: 700;
+  margin: 0 0 var(--space-4);
+}
+
+h1 {
+  font-size: var(--text-2xl);
+}
+
+h2 {
+  font-size: var(--text-xl);
+}
+
+h3 {
+  font-size: var(--text-lg);
+}
+
+p {
+  margin: 0 0 var(--space-4);
+}
+
+a {
+  color: var(--color-brand);
+}
+
+a:hover {
+  color: var(--color-brand-hover);
+}
+
+/*
+ * Focus: 3px #005fcc ring, 2px offset, on every interactive
+ * element (§2.1). Outlines are never suppressed anywhere.
+ */
+:focus-visible {
+  outline: 3px solid var(--color-focus);
+  outline-offset: 2px;
+}
+
+button,
+input,
+select,
+textarea {
+  font: inherit;
+  color: inherit;
+}
+
+img {
+  max-width: 100%;
+}
+
+/*
+ * Motion: none by default. The only permitted transitions are
+ * opacity/transform ≤ 150ms for the sticky bar and dialogs
+ * (later slices); all motion is disabled under
+ * prefers-reduced-motion.
+ */
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation: none !important;
+    transition: none !important;
+    scroll-behavior: auto !important;
+  }
+}
+
+/*
+ * Status pill / priority badge (§2.3). Rendered by
+ * components/ui/StatusPill.tsx; the data attribute selects the
+ * pair, so props take status/priority keys, never colours.
+ * Pills use the 6px control radius so they read as labels,
+ * not buttons.
+ */
+.status-pill,
+.priority-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-1);
+  padding: var(--space-1) var(--space-2);
+  border: 1px solid;
+  border-radius: var(--radius-control);
+  font-size: var(--text-sm);
+  line-height: 1.25;
+  font-weight: 600;
+  white-space: nowrap;
+}
+
+.status-pill[data-status="SCHEDULED"] {
+  background: var(--status-scheduled-bg);
+  color: var(--status-scheduled-text);
+  border-color: var(--status-scheduled-border);
+}
+
+.status-pill[data-status="EN_ROUTE"] {
+  background: var(--status-en-route-bg);
+  color: var(--status-en-route-text);
+  border-color: var(--status-en-route-border);
+}
+
+.status-pill[data-status="ON_SITE"] {
+  background: var(--status-on-site-bg);
+  color: var(--status-on-site-text);
+  border-color: var(--status-on-site-border);
+}
+
+.status-pill[data-status="IN_PROGRESS"] {
+  background: var(--status-in-progress-bg);
+  color: var(--status-in-progress-text);
+  border-color: var(--status-in-progress-border);
+}
+
+.status-pill[data-status="ON_HOLD"] {
+  background: var(--status-on-hold-bg);
+  color: var(--status-on-hold-text);
+  border-color: var(--status-on-hold-border);
+}
+
+.status-pill[data-status="COMPLETED"] {
+  background: var(--status-completed-bg);
+  color: var(--status-completed-text);
+  border-color: var(--status-completed-border);
+}
+
+.status-pill[data-status="CANCELLED"] {
+  background: var(--status-cancelled-bg);
+  color: var(--status-cancelled-text);
+  border-color: var(--status-cancelled-border);
+}
+
+.priority-badge[data-priority="URGENT"] {
+  background: var(--priority-urgent-bg);
+  color: var(--priority-urgent-text);
+  border-color: var(--priority-urgent-text);
+}
+
+.priority-badge[data-priority="HIGH"] {
+  background: var(--priority-high-bg);
+  color: var(--priority-high-text);
+  border-color: var(--priority-high-text);
+}
+
+.priority-badge[data-priority="NORMAL"],
+.priority-badge[data-priority="LOW"] {
+  background: var(--priority-neutral-bg);
+  color: var(--priority-neutral-text);
+  border-color: var(--priority-neutral-text);
+}

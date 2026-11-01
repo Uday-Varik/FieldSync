@@ -1,6 +1,15 @@
 // Shared types + constants only — no runtime logic, no DB, no UI.
-// Single source of truth for status/priority styling (docs/06 rule:
-// do not hardcode colours per screen).
+// Single source of truth for status/priority display (docs/06 rule:
+// do not hardcode colours per screen; docs/17 §2.3).
+//
+// The style values are token references, not Tailwind class
+// strings: `token` is the value of the data-status /
+// data-priority attribute that apps/web/app/globals.css styles,
+// `label` is the human label shown everywhere, and `glyph` is
+// the non-colour signal paired with the colour. No Tailwind is
+// installed and no web file consumed the old class strings.
+// Shape change (slice (a), docs/17 §2.3): verified safe —
+// nothing in apps/web or apps/api imports this package.
 
 export const JOB_STATUSES = [
   'SCHEDULED',
@@ -27,19 +36,25 @@ export const VALID_NEXT_STATUSES: Record<JobStatus, JobStatus[]> = {
   CANCELLED: [],
 };
 
-export const STATUS_STYLES: Record<JobStatus, { label: string; badge: string }> = {
-  SCHEDULED: { label: 'Scheduled', badge: 'bg-slate-200 text-slate-800' },
-  EN_ROUTE: { label: 'En route', badge: 'bg-blue-200 text-blue-900' },
-  ON_SITE: { label: 'On site', badge: 'bg-violet-200 text-violet-900' },
-  IN_PROGRESS: { label: 'In progress', badge: 'bg-amber-200 text-amber-900' },
-  ON_HOLD: { label: 'On hold', badge: 'bg-zinc-300 text-zinc-800' },
-  COMPLETED: { label: 'Completed', badge: 'bg-emerald-200 text-emerald-900' },
-  CANCELLED: { label: 'Cancelled', badge: 'bg-red-200 text-red-900' },
+export const STATUS_STYLES: Record<
+  JobStatus,
+  { label: string; glyph: string; token: string }
+> = {
+  SCHEDULED: { label: 'Scheduled', glyph: '○', token: 'SCHEDULED' },
+  EN_ROUTE: { label: 'En route', glyph: '→', token: 'EN_ROUTE' },
+  ON_SITE: { label: 'On site', glyph: '◎', token: 'ON_SITE' },
+  IN_PROGRESS: { label: 'In progress', glyph: '◐', token: 'IN_PROGRESS' },
+  ON_HOLD: { label: 'On hold', glyph: '❚❚', token: 'ON_HOLD' },
+  COMPLETED: { label: 'Completed', glyph: '✓', token: 'COMPLETED' },
+  CANCELLED: { label: 'Cancelled', glyph: '✕', token: 'CANCELLED' },
 };
 
-export const PRIORITY_STYLES: Record<Priority, string> = {
-  LOW: 'bg-slate-100 text-slate-700',
-  NORMAL: 'bg-slate-100 text-slate-700',
-  HIGH: 'bg-amber-200 text-amber-900',
-  URGENT: 'bg-red-200 text-red-900',
+export const PRIORITY_STYLES: Record<
+  Priority,
+  { label: string; glyph: string; token: string }
+> = {
+  LOW: { label: 'Low', glyph: '', token: 'LOW' },
+  NORMAL: { label: 'Normal', glyph: '', token: 'NORMAL' },
+  HIGH: { label: 'HIGH', glyph: '', token: 'HIGH' },
+  URGENT: { label: 'URGENT', glyph: '▲', token: 'URGENT' },
 };
