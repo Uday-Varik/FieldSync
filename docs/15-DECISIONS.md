@@ -397,3 +397,14 @@ are not repeated here except where implementation changed them.
   locally via a loopback TLS proxy to Neon). The first
   web-UI edit mangled indentation (a72c020); fixed in
   ee5db83, verified by YAML parse + diff before merge.
+
+- CORS allow-list (2026-11-01): `enableCors` added in
+  `apps/api/src/main.ts`, exact origins only (production
+  Vercel URL + http://localhost:3000, overridable via a
+  comma-separated CORS_ORIGINS env var). Found by the Nov 1
+  test pass: preflight OPTIONS to /jobs returned 404 with
+  no ACAO header, so browsers blocked every client-side
+  mutation (status actions, photos, PDF download) in
+  production while server-side page loads worked. No
+  credentials (Bearer tokens, no cookies). Verified live
+  by preflight after the Fly redeploy.
