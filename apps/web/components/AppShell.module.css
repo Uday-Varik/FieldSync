@@ -1,0 +1,151 @@
+/*
+ * App shell styles (docs/17 §§2.2, 2.4). Tokens only — no hex
+ * values here. Base layout is the phone layout; wider layouts
+ * are progressive enhancement via min-width queries (720 /
+ * 1024 / 1280). Every interactive element, links included, has
+ * a 44px minimum touch target. No hamburger menu: the nav wraps
+ * as a labelled row, with an active state (aria-current in
+ * AppShell.tsx) at every width.
+ */
+
+.shell {
+  min-height: 100vh;
+  background: var(--color-surface);
+  color: var(--color-ink);
+}
+
+/* Skip link: visible only on keyboard focus. */
+.skipLink {
+  position: absolute;
+  left: var(--space-4);
+  top: -100px;
+  z-index: 10;
+  display: inline-flex;
+  align-items: center;
+  min-height: 44px;
+  padding: var(--space-2) var(--space-4);
+  background: var(--color-brand);
+  color: var(--color-on-brand);
+  font-weight: 600;
+  text-decoration: none;
+  border-radius: var(--radius-control);
+}
+
+.skipLink:focus-visible {
+  top: var(--space-2);
+}
+
+.header {
+  background: var(--color-surface);
+  border-bottom: 1px solid var(--color-border);
+}
+
+.headerInner {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--space-2) var(--space-4);
+  padding: var(--space-2) var(--space-4);
+}
+
+.brandBlock {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  min-width: 0;
+}
+
+.wordmark {
+  display: inline-flex;
+  align-items: center;
+  min-height: 44px;
+  font-size: var(--text-xl);
+  font-weight: 700;
+  line-height: 1.25;
+  color: var(--color-brand);
+  text-decoration: none;
+}
+
+.wordmark:hover {
+  color: var(--color-brand-hover);
+}
+
+.context {
+  margin: 0;
+  font-size: var(--text-sm);
+  line-height: 1.5;
+  color: var(--color-text-muted);
+}
+
+.nav {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-1);
+  order: 3;
+  flex-basis: 100%;
+}
+
+.navLink {
+  display: inline-flex;
+  align-items: center;
+  min-height: 44px;
+  padding: var(--space-2) var(--space-3);
+  border-radius: var(--radius-control);
+  color: var(--color-ink);
+  font-weight: 600;
+  text-decoration: none;
+}
+
+.navLink:hover {
+  background: var(--color-surface-muted);
+  color: var(--color-brand-hover);
+}
+
+.navLink[aria-current="page"] {
+  background: var(--color-surface-muted);
+  color: var(--color-brand);
+  box-shadow: inset 0 -3px 0 var(--color-brand);
+}
+
+.actions {
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+  margin-left: auto;
+}
+
+.actions button {
+  min-height: 44px;
+}
+
+.content {
+  max-width: 1280px;
+  margin-inline: auto;
+  outline: none;
+}
+
+@media (min-width: 720px) {
+  .headerInner {
+    flex-wrap: nowrap;
+  }
+
+  .nav {
+    order: 0;
+    flex-basis: auto;
+    margin-left: var(--space-4);
+  }
+}
+
+@media (min-width: 1024px) {
+  .headerInner {
+    padding: var(--space-2) var(--space-6);
+  }
+}
+
+@media (min-width: 1280px) {
+  .headerInner {
+    max-width: 1280px;
+    margin-inline: auto;
+    padding-inline: var(--space-8);
+  }
+}

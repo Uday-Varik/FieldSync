@@ -422,3 +422,34 @@ are not repeated here except where implementation changed them.
   error collapsed into "API unavailable", which hid a
   refused account behind a downtime message. No auth
   logic changed; only which message each outcome shows.
+
+## 2026-11-01 — Hand-rolled CSS supersedes the Tailwind note (UI Redesign slice (a))
+
+- Deviation: `docs/06` said "Tailwind + a small set of shared
+  components is enough". The Tailwind half no longer stands:
+  slice (a) ships one `globals.css` (CSS custom-property
+  tokens, `docs/17` §2) plus colocated CSS Modules, zero new
+  dependencies, and no dark mode. The shared-components half
+  stands.
+- Reason: the app had zero styling infrastructure, and the
+  Tailwind class strings in `STATUS_STYLES` / `PRIORITY_STYLES`
+  were dead code nothing consumed (`docs/17` §1.0). Plain CSS
+  + CSS Modules solve tokens and the shell with no new build
+  step, no runtime CSS-in-JS, and no external font/icon fetch
+  for offline/PWA use (`docs/17` §3.1).
+- Also in slice (a): the shared style values were replaced
+  with token references (data-attribute tokens + glyphs +
+  labels); the export shape changed, verified safe because
+  nothing in `apps/web` or `apps/api` imports the shared
+  package (API typecheck + 53 tests still pass). Only
+  `StatusPill` / `PriorityBadge` were created under
+  `components/ui/` in this slice; the remaining shared
+  components (`Button`, `Field`, `Card`, `SyncBadge`, `Banner`,
+  `EmptyState`, `Skeleton`, `PageHeader`) are deferred to the
+  slices that first use them, so no unused components ship.
+- Token adjustment in slice (a): `--color-border-strong`
+  shipped as `#767f79`, not the `#9aa39d` first drafted in
+  `docs/17` §2.1 — `#9aa39d` measured 2.59:1 against white,
+  below the 3:1 non-text target for input boundaries;
+  `#767f79` measures 4.13:1. `docs/17` §2.1 updated in the
+  same PR.
