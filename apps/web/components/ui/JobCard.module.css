@@ -1,0 +1,98 @@
+/* Job card styles (docs/17 §2). Tokens only — no hex values.
+   Overdue is a 4px danger left bar + "Overdue" text + clock
+   glyph, in addition to the status pill (docs/17 §2.3). */
+
+.card {
+  background: var(--color-surface);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-card);
+  box-shadow: var(--shadow-card);
+  padding: var(--space-4);
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2);
+}
+
+.card.overdue {
+  border-left: 4px solid var(--color-danger);
+}
+
+.card.next {
+  border-color: var(--color-brand);
+}
+
+.flags {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-2);
+  align-items: center;
+}
+
+.nextLabel {
+  display: inline-flex;
+  align-items: center;
+  padding: var(--space-1) var(--space-2);
+  background: var(--color-info-bg);
+  border: 1px solid var(--color-brand);
+  border-radius: var(--radius-control);
+  color: var(--color-brand);
+  font-size: var(--text-sm);
+  font-weight: 700;
+  white-space: nowrap;
+}
+
+.overdueFlag {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-1);
+  padding: var(--space-1) var(--space-2);
+  background: var(--color-danger-bg);
+  border: 1px solid var(--color-danger-border);
+  border-radius: var(--radius-control);
+  color: var(--color-danger);
+  font-size: var(--text-sm);
+  font-weight: 700;
+  white-space: nowrap;
+}
+
+.unassignedFlag {
+  display: inline-flex;
+  align-items: center;
+  padding: var(--space-1) var(--space-2);
+  background: var(--color-warning-bg);
+  border: 1px solid var(--color-warning-border);
+  border-radius: var(--radius-control);
+  color: var(--color-ink);
+  font-size: var(--text-sm);
+  font-weight: 600;
+  white-space: nowrap;
+}
+
+.title {
+  margin: 0;
+  font-size: var(--text-lg);
+}
+
+.titleLink {
+  display: inline-flex;
+  align-items: center;
+  min-height: 44px;
+}
+
+.customer {
+  margin: 0;
+  font-weight: 600;
+}
+
+.meta {
+  margin: 0;
+  color: var(--color-text-muted);
+  font-size: var(--text-sm);
+}
+
+.badges {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-2);
+  margin-top: var(--space-1);
+}

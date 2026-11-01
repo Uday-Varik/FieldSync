@@ -1,0 +1,39 @@
+/* Empty state styles (docs/17 §2). Tokens only — no hex values. */
+
+.empty {
+  background: var(--color-surface-muted);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-card);
+  padding: var(--space-6);
+  text-align: left;
+}
+
+.heading {
+  margin: 0 0 var(--space-2);
+  font-size: var(--text-xl);
+}
+
+.body {
+  margin: 0;
+  color: var(--color-text-muted);
+}
+
+.actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-2);
+  margin-top: var(--space-4);
+}
+
+.actions a {
+  display: inline-flex;
+  align-items: center;
+  min-height: 44px;
+  padding: var(--space-2) var(--space-4);
+  border: 1px solid var(--color-border-strong);
+  border-radius: var(--radius-control);
+  color: var(--color-ink);
+  font-weight: 600;
+  text-decoration: none;
+  background: var(--color-surface);
+}

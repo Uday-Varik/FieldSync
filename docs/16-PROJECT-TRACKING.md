@@ -134,7 +134,7 @@ Update, 2026-10-31: live core verification passed (Neon migrate + seed with exac
 
 - [x] Audit slice: UI/UX audit of every web page/component at main 68694f5a, design tokens, status/priority system, hand-rolled CSS decision (no new dependency, no dark mode), slice plan (a)–(e), verification rules. Docs only; no code changed. Merged: PR #48.
 - [x] Slice (a) — tokens + app shell (`globals.css`, layout shell, `AppShell`, `components/ui/StatusPill.tsx`, shared style-value migration). Merged: PR #49 (https://github.com/Uday-Varik/FieldSync/pull/49).
-- [ ] Slice (b) — board + My Day.
+- [x] Slice (b) — board + My Day (grouped-by-status board columns ≥1024px, StatusPill/PriorityBadge cards, Overdue/Unassigned counts, filter-preserving refresh, date control via the existing `date` query parameter, My Day Overdue/Today grouping in window order with next-job prominence and pending-sync badges, stale-copy removal, board/My Day loading skeletons; shared `PageHeader`/`EmptyState`/`Skeleton`/`JobCard`/`SyncBadge` components; no API change). Merged: PR #PENDING.
 - [ ] Slice (c) — job detail + creation.
 - [ ] Slice (d) — map + offline + auth pages.
 - [ ] Slice (e) — polish/accessibility pass + tracking. Visual browser pass pending for the main agent/user (no worker may claim it).
