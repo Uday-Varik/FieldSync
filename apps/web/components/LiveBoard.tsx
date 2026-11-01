@@ -4,6 +4,7 @@ import { useEffect, useState } from 'react';
 import { useAuth } from '@clerk/nextjs';
 import { useRouter } from 'next/navigation';
 import { io } from 'socket.io-client';
+import styles from './LiveBoard.module.css';
 
 // Phase 3 live board: connects to the API's Socket.io
 // gateway with the Clerk session token, and refreshes
@@ -15,6 +16,12 @@ import { io } from 'socket.io-client';
 // If the API or socket is down, the board still works
 // as a normal (manual-refresh) page — live is additive,
 // not required.
+//
+// Slice (b) restyle only (docs/17 §§2.3, 3.2): the live
+// line gets a stable info slot in the board layout; the
+// wording ("● Live" / "○ Live unavailable (manual refresh
+// still works)"), the dot + words pairing, the presence
+// names, and the refresh behaviour are unchanged.
 export default function LiveBoard() {
   const { getToken } = useAuth();
   const router = useRouter();
@@ -43,7 +50,7 @@ export default function LiveBoard() {
   }, [getToken, router]);
 
   return (
-    <p style={{ fontSize: '0.9rem' }}>
+    <p className={styles.live}>
       {connected ? '● Live' : '○ Live unavailable (manual refresh still works)'}
       {online.length > 0 && ` · Online: ${online.join(', ')}`}
     </p>

@@ -453,3 +453,23 @@ are not repeated here except where implementation changed them.
   below the 3:1 non-text target for input boundaries;
   `#767f79` measures 4.13:1. `docs/17` §2.1 updated in the
   same PR.
+
+## 2026-11-01 — My Day orders today's jobs by window start in the page (UI Redesign slice (b))
+
+- Deviation: `docs/17` §4 slice (b) said My Day grouping should
+  use "the order the API returns plus the overdue flag" and "do
+  not silently re-sort" if API order is not window order. The
+  API returns `scheduledDate` asc, then `createdAt` desc — not
+  window order — while `docs/06` S20 / `docs/11` S20 require
+  "Today (in window order)". Slice (b) therefore sorts the
+  already-returned same-day jobs by `scheduledWindowStart` in
+  the page (stable sort: ties keep API order), using only
+  fields the list endpoint already returns. No API change, no
+  new sort contract on the server; the sort is stated in the
+  slice (b) PR description, not silent.
+- Related limit, not a deviation: My Day keeps the existing
+  `date=today` query, so its Overdue group covers only today's
+  jobs whose window end has passed. Past-date overdue jobs are
+  not returned by that query; showing them would need a query
+  change (e.g. `dateFrom`), deferred — widening the query under
+  `limit=100` could push today's jobs out of the page.

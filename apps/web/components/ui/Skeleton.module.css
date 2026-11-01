@@ -1,0 +1,24 @@
+/* Skeleton styles (docs/17 §2). Tokens only — no hex values.
+   Static blocks; no animation, so reduced-motion needs no
+   special handling. */
+
+.label {
+  color: var(--color-text-muted);
+  font-size: var(--text-sm);
+}
+
+.row,
+.card {
+  background: var(--color-surface-muted);
+  border-radius: var(--radius-card);
+}
+
+.row {
+  height: 72px;
+  margin-bottom: var(--space-3);
+}
+
+.card {
+  height: 120px;
+  margin-bottom: var(--space-3);
+}
