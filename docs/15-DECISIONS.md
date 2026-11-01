@@ -516,3 +516,55 @@ are not repeated here except where implementation changed them.
   stay at thumb reach while scrolling (docs/06 S21).
   Completed/cancelled jobs now show their state in the
   bar instead of the section vanishing.
+
+## 2026-11-01 — Map + offline + auth pages presentation (UI Redesign slice (d))
+
+- Deferred, not a behaviour change: `docs/17` §4 slice (d)
+  also listed `OfflineBanner` (Banner adoption, wording
+  kept) and `PwaRegister` placement/styling. This slice
+  was scoped to the map, offline, auth, and home routes
+  only, so both shell components are untouched — wording,
+  sync-worker start, install-prompt behaviour, and
+  service-worker registration are exactly as before, and
+  the banner's inline colours remain until the slice (e)
+  polish pass. The offline page's queued-counts panel is
+  a route-colocated component (`app/offline/OfflineStatus.tsx`),
+  not a change to the banner.
+- Not a deviation: no new shared `components/ui/` component
+  is created in this slice. The map, offline, auth, and
+  home pages reuse `PageHeader`, `EmptyState`, `Skeleton`,
+  `Banner`, `Button`, `StatusPill`/`PriorityBadge`,
+  `JobCard`, and `SyncBadge` as first defined in slices
+  (a)–(c); route styles live in colocated CSS Modules.
+  No token was added to `globals.css` and no new
+  dependency was added.
+- Map pins: `docs/17` §2.3 requires pin fill = status
+  background with a contrasting border. Pins here are
+  real `<button>` elements carrying the status glyph,
+  coloured from the §2.3 token pairs via `data-status`,
+  with the legend, the selected-panel label, and the
+  list entry as the non-colour signals. Unknown status
+  values (not one of the seven keys) get an uncoloured
+  pin with a `•` glyph and the raw code humanised with
+  spaces, rather than a guessed colour — no status is
+  invented. Technician markers (docs/06 S12) are not
+  added: no technician-location data exists in the app,
+  and this presentation slice invents no feature.
+- Offline page counts: the page shows counts only
+  (pending, failed, cached jobs) from the existing Dexie
+  outbox/jobs tables, via the existing `syncPending`
+  trigger for retry. No queue contents, mutation types,
+  or last-synced time are shown — the sync worker keeps
+  no last-synced value to show. The page stays a server
+  component with no user data in its HTML, so the
+  service worker's cached copy remains safe; counts
+  render client-side only, after mount.
+- Home unlinked branch: the page previously matched only
+  a 404 from `/me`. It now also matches the
+  `USER_NOT_LINKED` error code (PR #47), so the
+  sign-up/invite rules show for a 403 with that code
+  too. Same copy, same branches otherwise; no API or
+  auth change. The shell `UserButton` keeps Clerk's
+  default appearance — only the sign-in/up cards take
+  the §2 token appearance variables, per `docs/17` §3.3.
+

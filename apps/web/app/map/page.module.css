@@ -1,0 +1,26 @@
+/* Map page styles (docs/17 §2). Tokens only — no hex values.
+   Used by the signed-out branch of the map page and by the
+   map loading state; the signed-in map itself is rendered
+   by MapView with its own module styles. */
+
+.page {
+  padding: var(--space-6) var(--space-4);
+}
+
+.textLink {
+  display: inline-flex;
+  align-items: center;
+  min-height: 44px;
+}
+
+@media (min-width: 1024px) {
+  .page {
+    padding-inline: var(--space-6);
+  }
+}
+
+@media (min-width: 1280px) {
+  .page {
+    padding-inline: var(--space-8);
+  }
+}

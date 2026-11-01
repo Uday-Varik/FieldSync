@@ -1,0 +1,45 @@
+/* Sign-in / sign-up page styles (docs/17 §§2, 3.3). Tokens
+   only — no hex values. The Clerk card keeps its own
+   styling; this page supplies the FieldSync heading,
+   product explanation, and sign-up/invite rules around it,
+   in the same tokens as the app shell. */
+
+.page {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: var(--space-4);
+  padding: var(--space-6) var(--space-4);
+}
+
+.intro {
+  max-width: 560px;
+  text-align: center;
+}
+
+.title {
+  margin: 0 0 var(--space-2);
+  font-size: var(--text-3xl);
+}
+
+.product {
+  margin: 0 0 var(--space-4);
+  color: var(--color-text-muted);
+  font-size: var(--text-sm);
+}
+
+.rules {
+  margin: 0 0 var(--space-4);
+  text-align: left;
+}
+
+.switchLink {
+  margin: 0;
+  font-size: var(--text-sm);
+}
+
+.switchLink a {
+  display: inline-flex;
+  align-items: center;
+  min-height: 44px;
+}

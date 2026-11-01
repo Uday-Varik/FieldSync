@@ -1,0 +1,268 @@
+/* Map styles (docs/17 §§2.2–2.4, slice (d)). Tokens only — no hex
+   values. Pin colours come from the §2.3 status pairs in
+   globals.css, selected by data-status, so a pin is identified
+   by colour + glyph + the legend label together, never by
+   colour alone. Base layout is the phone layout: map first,
+   then the selected-job panel and the job lists. At ≥1024px
+   the map height grows and, when a job is selected, the map
+   and panel sit side by side. */
+
+.page {
+  padding: var(--space-6) var(--space-4);
+}
+
+.legend {
+  margin: 0 0 var(--space-4);
+  padding: var(--space-4);
+  background: var(--color-surface-muted);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-card);
+}
+
+.legendTitle {
+  margin: 0 0 var(--space-2);
+  font-size: var(--text-lg);
+}
+
+.legendList {
+  list-style: none;
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-2);
+  margin: 0;
+  padding: 0;
+}
+
+.legendNote {
+  margin: var(--space-2) 0 0;
+  color: var(--color-text-muted);
+  font-size: var(--text-sm);
+}
+
+.map {
+  width: 100%;
+  height: 320px;
+  border: 1px solid var(--color-border-strong);
+  border-radius: var(--radius-card);
+  overflow: hidden;
+}
+
+.layout {
+  display: grid;
+  gap: var(--space-4);
+}
+
+.panel {
+  background: var(--color-surface);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-card);
+  box-shadow: var(--shadow-raised);
+  padding: var(--space-4);
+}
+
+.panelTitle {
+  margin: 0 0 var(--space-2);
+  font-size: var(--text-xl);
+}
+
+.panelMeta {
+  margin: 0 0 var(--space-2);
+  color: var(--color-text-muted);
+  font-size: var(--text-sm);
+}
+
+.panelBadges {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-2);
+  margin: 0 0 var(--space-2);
+}
+
+.overdueFlag {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-1);
+  padding: var(--space-1) var(--space-2);
+  background: var(--color-danger-bg);
+  border: 1px solid var(--color-danger-border);
+  border-radius: var(--radius-control);
+  color: var(--color-danger);
+  font-size: var(--text-sm);
+  font-weight: 700;
+  white-space: nowrap;
+}
+
+.panelActions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-2);
+  margin-top: var(--space-4);
+}
+
+.secondaryLink {
+  display: inline-flex;
+  align-items: center;
+  min-height: 44px;
+  padding: var(--space-2) var(--space-3);
+  border: 1px solid var(--color-border-strong);
+  border-radius: var(--radius-control);
+  background: var(--color-surface);
+  color: var(--color-ink);
+  font-weight: 600;
+  text-decoration: none;
+}
+
+.textLink {
+  display: inline-flex;
+  align-items: center;
+  min-height: 44px;
+}
+
+.listSection {
+  margin-top: var(--space-6);
+}
+
+.listTitle {
+  margin: 0 0 var(--space-4);
+  font-size: var(--text-xl);
+}
+
+.cards {
+  list-style: none;
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-3);
+  margin: 0;
+  padding: 0;
+}
+
+.cardItem {
+  border-radius: var(--radius-card);
+}
+
+.cardItemSelected {
+  outline: 3px solid var(--color-focus);
+  outline-offset: 2px;
+}
+
+.showButton {
+  margin-top: var(--space-2);
+}
+
+.sectionNote {
+  margin: 0 0 var(--space-4);
+  color: var(--color-text-muted);
+  font-size: var(--text-sm);
+}
+
+/*
+ * Map pins. Mapbox renders the element supplied to the
+ * marker; the element is a real <button>, so pins are
+ * keyboard-reachable and activatable like any other job
+ * control, and the list below the map is the non-map path
+ * to every job. The glyph is the §2.3 status glyph; the
+ * label lives in the legend and in the button's accessible
+ * name. The selected pin gets a focus-colour ring and a
+ * larger size in addition to its colour and glyph.
+ */
+.pin {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 32px;
+  height: 32px;
+  padding: 0;
+  border: 2px solid;
+  border-radius: 50% 50% 50% 0;
+  transform: rotate(-45deg);
+  font-size: var(--text-base);
+  font-weight: 700;
+  line-height: 1;
+  cursor: pointer;
+}
+
+.pin > span {
+  transform: rotate(45deg);
+}
+
+.pin[data-status='SCHEDULED'] {
+  background: var(--status-scheduled-bg);
+  color: var(--status-scheduled-text);
+  border-color: var(--status-scheduled-border);
+}
+
+.pin[data-status='EN_ROUTE'] {
+  background: var(--status-en-route-bg);
+  color: var(--status-en-route-text);
+  border-color: var(--status-en-route-border);
+}
+
+.pin[data-status='ON_SITE'] {
+  background: var(--status-on-site-bg);
+  color: var(--status-on-site-text);
+  border-color: var(--status-on-site-border);
+}
+
+.pin[data-status='IN_PROGRESS'] {
+  background: var(--status-in-progress-bg);
+  color: var(--status-in-progress-text);
+  border-color: var(--status-in-progress-border);
+}
+
+.pin[data-status='ON_HOLD'] {
+  background: var(--status-on-hold-bg);
+  color: var(--status-on-hold-text);
+  border-color: var(--status-on-hold-border);
+}
+
+.pin[data-status='COMPLETED'] {
+  background: var(--status-completed-bg);
+  color: var(--status-completed-text);
+  border-color: var(--status-completed-border);
+}
+
+.pin[data-status='CANCELLED'] {
+  background: var(--status-cancelled-bg);
+  color: var(--status-cancelled-text);
+  border-color: var(--status-cancelled-border);
+}
+
+.pinSelected {
+  width: 40px;
+  height: 40px;
+  outline: 3px solid var(--color-focus);
+  outline-offset: 2px;
+  z-index: 2;
+}
+
+@media (min-width: 720px) {
+  .map {
+    height: 420px;
+  }
+}
+
+@media (min-width: 1024px) {
+  .page {
+    padding-inline: var(--space-6);
+  }
+
+  .map {
+    height: 500px;
+  }
+
+  .layoutWithPanel {
+    grid-template-columns: minmax(0, 1fr) 360px;
+    align-items: start;
+  }
+
+  .panel {
+    position: sticky;
+    top: var(--space-4);
+  }
+}
+
+@media (min-width: 1280px) {
+  .page {
+    padding-inline: var(--space-8);
+  }
+}
