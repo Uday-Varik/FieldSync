@@ -4,6 +4,10 @@ import { useCallback, useEffect, useState } from 'react';
 import { useAuth } from '@clerk/nextjs';
 import { apiCall } from '../lib/api-client';
 import { listPendingPhotoBlobs, storeOfflinePhoto, uploadOfflinePhotos } from '../lib/sync-worker';
+import Button from './ui/Button';
+import Field from './ui/Field';
+import ConfirmBlock from './ui/ConfirmBlock';
+import styles from './PhotoSection.module.css';
 
 // Phase 2 photos UI: capture/upload via the signed-URL
 // flow, grid display, and soft delete. If photo storage
@@ -11,11 +15,26 @@ import { listPendingPhotoBlobs, storeOfflinePhoto, uploadOfflinePhotos } from '.
 // clear message — the UI shows that instead of pretending
 // a photo was saved. Thumbnails are not in this slice
 // (see API notes); the grid shows the original image.
+//
+// Redesign (docs/17 slice (c)): token styles, a visible
+// label on the upload control, an announced status message,
+// an uploading state, and an explicit confirmation step
+// before delete that names the file (docs/06 principle 4).
+// The upload/confirm/delete flow and payloads are unchanged.
+// No caption field is added: the confirm endpoint accepts a
+// caption, but the offline queue path (storeOfflinePhoto /
+// ADD_PHOTO_META) carries no caption, so a caption entered
+// online would silently vanish offline. Adding one needs
+// a sync-worker change, recorded as a follow-up — not faked
+// here (docs/17 §4 slice (c)).
 export default function PhotoSection({ jobId, canUpload, jobVersion }: { jobId: string; canUpload: boolean; jobVersion?: number }) {
   const { getToken } = useAuth();
   const [photos, setPhotos] = useState<any[]>([]);
   const [pendingPhotos, setPendingPhotos] = useState<{ id: string; url: string; originalFilename: string }[]>([]);
   const [message, setMessage] = useState('');
+  const [uploading, setUploading] = useState(false);
+  const [pendingDelete, setPendingDelete] = useState<{ id: string; filename: string } | null>(null);
+  const [deleting, setDeleting] = useState(false);
 
   const loadPending = useCallback(async () => {
     try {
@@ -78,6 +97,7 @@ export default function PhotoSection({ jobId, canUpload, jobVersion }: { jobId: 
   }
 
   async function upload(file: File) {
+    setUploading(true);
     setMessage('Uploading…');
     // Phase 4 offline photos: when offline (or when the
     // network fails), store the binary in IndexedDB and
@@ -91,6 +111,8 @@ export default function PhotoSection({ jobId, canUpload, jobVersion }: { jobId: 
         await loadPending();
       } catch (e) {
         setMessage(e instanceof Error ? e.message : 'Failed.');
+      } finally {
+        setUploading(false);
       }
       return;
     }
@@ -112,66 +134,115 @@ export default function PhotoSection({ jobId, canUpload, jobVersion }: { jobId: 
       await load();
     } catch (e) {
       setMessage(e instanceof Error ? e.message : 'Failed.');
+    } finally {
+      setUploading(false);
     }
   }
 
   async function remove(photoId: string) {
+    setDeleting(true);
     try {
       await apiCall(await getToken(), `/jobs/${jobId}/photos/${photoId}`, 'DELETE');
+      setMessage('Photo deleted.');
       await load();
     } catch (e) {
       setMessage(e instanceof Error ? e.message : 'Failed.');
+    } finally {
+      setDeleting(false);
+    }
+  }
+
+  function closeDeleteConfirm() {
+    const id = pendingDelete?.id;
+    setPendingDelete(null);
+    if (id) {
+      const trigger = document.getElementById(`delete-photo-${id}`);
+      if (trigger) setTimeout(() => trigger.focus(), 0);
     }
   }
 
   return (
-    <section style={{ marginTop: '1rem' }}>
-      <h2>Photos</h2>
+    <section aria-label="Photos">
+      <h2 className={styles.heading}>Photos</h2>
       {canUpload && (
-        <input
-          type="file"
-          accept="image/*"
-          capture="environment"
-          onChange={(e) => {
-            const file = e.target.files?.[0];
-            if (file) upload(file);
-          }}
-          style={{ minHeight: '44px' }}
-        />
+        <div className={styles.upload}>
+          <Field label="Add a photo" hint="Choose an image from your camera or files. Photos are compressed before upload.">
+            <input
+              type="file"
+              accept="image/*"
+              capture="environment"
+              disabled={uploading}
+              onChange={async (e) => {
+                const file = e.target.files?.[0];
+                if (file) await upload(file);
+                e.target.value = '';
+              }}
+            />
+          </Field>
+        </div>
       )}
-      {message && <p>{message}</p>}
+      {message && (
+        <p className={styles.message} aria-live="polite">
+          {message}
+        </p>
+      )}
       {pendingPhotos.length > 0 && (
-        <div style={{ display: 'flex', gap: '0.5rem', flexWrap: 'wrap' }}>
+        <div className={styles.grid} role="list" aria-label="Photos queued offline">
           {pendingPhotos.map((photo) => (
-            <figure key={photo.id} style={{ margin: 0, maxWidth: '200px' }}>
+            <figure key={photo.id} className={styles.figure} role="listitem">
               {/* eslint-disable-next-line @next/next/no-img-element */}
-              <img src={photo.url} alt={photo.originalFilename} style={{ width: '100%' }} />
-              <figcaption>{photo.originalFilename} — queued offline</figcaption>
+              <img src={photo.url} alt={photo.originalFilename} className={styles.photo} />
+              <figcaption className={styles.caption}>
+                {photo.originalFilename} — <span className={styles.pending}>queued offline</span>
+              </figcaption>
             </figure>
           ))}
         </div>
       )}
       {photos.length === 0 && pendingPhotos.length === 0 ? (
-        <p>No photos yet.</p>
+        <p className={styles.empty}>No photos yet.</p>
       ) : (
-        <div style={{ display: 'flex', gap: '0.5rem', flexWrap: 'wrap' }}>
+        <div className={styles.grid} role="list" aria-label="Photos">
           {photos.map((photo) => (
-            <figure key={photo.id} style={{ margin: 0, maxWidth: '200px' }}>
+            <figure key={photo.id} className={styles.figure} role="listitem">
               {(photo.thumbnailUrl ?? photo.downloadUrl) ? (
                 // eslint-disable-next-line @next/next/no-img-element
-                <img src={photo.thumbnailUrl ?? photo.downloadUrl} alt={photo.caption ?? photo.originalFilename} style={{ width: '100%' }} />
+                <img src={photo.thumbnailUrl ?? photo.downloadUrl} alt={photo.caption ?? photo.originalFilename} className={styles.photo} />
               ) : (
-                <p>Preview unavailable (storage not configured).</p>
+                <p className={styles.unavailable}>Preview unavailable (storage not configured).</p>
               )}
-              <figcaption>{photo.originalFilename}</figcaption>
+              <figcaption className={styles.caption}>
+                {photo.caption ? `${photo.caption} — ` : ''}
+                {photo.originalFilename}
+              </figcaption>
               {canUpload && (
-                <button type="button" onClick={() => remove(photo.id)} style={{ minHeight: '44px', padding: '0.5rem 1rem' }}>
+                <Button
+                  id={`delete-photo-${photo.id}`}
+                  variant="destructive"
+                  onClick={() => setPendingDelete({ id: photo.id, filename: photo.originalFilename })}
+                >
                   Delete
-                </button>
+                </Button>
               )}
             </figure>
           ))}
         </div>
+      )}
+      {pendingDelete && (
+        <ConfirmBlock
+          heading="Delete this photo?"
+          confirmLabel="Delete photo"
+          cancelLabel="Keep photo"
+          busy={deleting}
+          onCancel={closeDeleteConfirm}
+          onConfirm={() => {
+            const target = pendingDelete;
+            setPendingDelete(null);
+            void remove(target.id);
+          }}
+        >
+          <p>“{pendingDelete.filename}” will be deleted. This cannot be undone.</p>
+        </ConfirmBlock>
       )}
     </section>
   );

@@ -1,0 +1,52 @@
+/* Create job form styles (docs/17 §2). Tokens only — no
+   hex values. Groups follow the existing field order:
+   job, customer and address, schedule, assignment. The
+   form keeps its 480px width on wider screens. */
+
+.form {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-6);
+  max-width: 480px;
+}
+
+.group {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-3);
+  padding: 0;
+  margin: 0;
+  border: 0;
+}
+
+.groupTitle {
+  margin: 0;
+  font-size: var(--text-lg);
+}
+
+.summary {
+  padding: var(--space-4);
+  border: 2px solid var(--color-danger);
+  border-radius: var(--radius-card);
+  background: var(--color-danger-bg);
+}
+
+.summaryTitle {
+  margin: 0 0 var(--space-2);
+  font-size: var(--text-lg);
+}
+
+.summary p {
+  margin: 0;
+}
+
+.summary ul {
+  margin: var(--space-2) 0 0;
+  padding-left: var(--space-4);
+}
+
+.after {
+  margin: 0;
+  font-size: var(--text-sm);
+  color: var(--color-text-muted);
+}

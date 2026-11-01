@@ -5,10 +5,14 @@ import { useAuth } from '@clerk/nextjs';
 import { useRouter } from 'next/navigation';
 import { apiCall } from '../lib/api-client';
 import { enqueueMutation } from '../lib/sync-worker';
+import styles from './ChecklistToggles.module.css';
 
 // Phase 2 checklist toggles: assigned technician, dispatcher,
 // or admin (API rules). Each toggle is a large tap target for
 // phone use, and posts to the existing checklist toggle endpoint.
+// Redesign (docs/17 slice (c)): token styles only. Toggle
+// semantics, optimistic update, offline queueing, and
+// revert-on-server-error are unchanged.
 export default function ChecklistToggles({
   jobId,
   items,
@@ -53,26 +57,30 @@ export default function ChecklistToggles({
     }
   }
 
-  if (local.length === 0) return <p>No checklist items yet.</p>;
+  if (local.length === 0) return <p className={styles.empty}>No checklist items yet.</p>;
   return (
     <div>
-      <ul style={{ listStyle: 'none', padding: 0 }}>
+      <ul className={styles.list}>
         {local.map((item) => (
-          <li key={item.id} style={{ marginBottom: '0.5rem' }}>
-            <label style={{ display: 'flex', alignItems: 'center', gap: '0.75rem', minHeight: '44px' }}>
+          <li key={item.id}>
+            <label className={styles.row}>
               <input
                 type="checkbox"
-                style={{ width: '24px', height: '24px' }}
+                className={styles.checkbox}
                 checked={item.isChecked}
                 disabled={busy === item.id}
                 onChange={() => toggle(item)}
               />
-              <span style={{ textDecoration: item.isChecked ? 'line-through' : 'none' }}>{item.label}</span>
+              <span className={item.isChecked ? styles.checked : undefined}>{item.label}</span>
             </label>
           </li>
         ))}
       </ul>
-      {message && <p aria-live="polite">{message}</p>}
+      {message && (
+        <p className={styles.message} aria-live="polite">
+          {message}
+        </p>
+      )}
     </div>
   );
 }

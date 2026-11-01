@@ -1,0 +1,37 @@
+/* Checklist styles (docs/17 §2). Tokens only — no hex
+   values. The 44px row and 24px checkbox from PR #33 are
+   kept; checked state is shown with a line-through plus
+   the checkbox itself, never colour alone. */
+
+.list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2);
+}
+
+.row {
+  display: flex;
+  align-items: center;
+  gap: var(--space-3);
+  min-height: 44px;
+  cursor: pointer;
+}
+
+.checkbox {
+  flex: none;
+  width: 24px;
+  height: 24px;
+}
+
+.checked {
+  text-decoration: line-through;
+}
+
+.empty,
+.message {
+  margin: 0;
+  color: var(--color-text-muted);
+}

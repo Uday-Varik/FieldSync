@@ -1,0 +1,41 @@
+/* Signature pad styles (docs/17 §2). Tokens only — no hex
+   values, except the drawing surface itself: the canvas
+   background stays white in all themes because the saved
+   image is a white-background PNG (docs/17 §2.1). The
+   320×160 canvas size is kept exactly, so drawing
+   coordinates do not change. */
+
+.heading {
+  margin: 0;
+  font-size: var(--text-lg);
+}
+
+.form {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-3);
+  padding: var(--space-4);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-card);
+  background: var(--color-surface);
+}
+
+.canvas {
+  display: block;
+  width: 100%;
+  max-width: 320px;
+  border: 1px solid var(--color-border-strong);
+  border-radius: var(--radius-control);
+  background: #fff;
+  touch-action: none;
+}
+
+.actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-2);
+}
+
+.message {
+  margin: 0;
+}

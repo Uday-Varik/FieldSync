@@ -473,3 +473,46 @@ are not repeated here except where implementation changed them.
   not returned by that query; showing them would need a query
   change (e.g. `dateFrom`), deferred — widening the query under
   `limit=100` could push today's jobs out of the page.
+
+## 2026-11-01 — Job detail + creation presentation decisions (UI Redesign slice (c))
+
+- Shared components created in this slice as first use, per
+  the slice (a) deferral note: `Button`, `Field`, `Banner`,
+  and `ConfirmBlock` under `components/ui/`. No unused
+  shared component ships; `Card` remains unused and is not
+  created (detail sections use their own module styles).
+- Not a deviation: status moves are NOT confirmed. The
+  confirmation list in `docs/17` §3.3 and `docs/06`
+  principle 4 is Cancel / Delete photo / Reopen — status
+  moves stay immediate, with busy/disabled states added.
+  Cancel and Reopen confirm inline, reusing the existing
+  reason field; the confirm step is disabled until a reason
+  is entered, because the API requires one (an empty reason
+  previously posted and failed server-side — same endpoint
+  and payload, the failing post is simply not sent).
+- Photo caption field deferred, not faked: the confirm
+  endpoint accepts `caption`, but the offline queue path
+  (`storeOfflinePhoto` / `ADD_PHOTO_META`) carries no
+  caption, so a caption entered online would silently
+  vanish offline. Adding one needs a sync-worker/outbox
+  change, out of scope for a presentation slice.
+- Audit timeline limits, from the data the API returns:
+  activity rows carry `actorId` only, so no actor name is
+  shown and none is invented; entries keep the order the
+  API returns (newest first); note text is never quoted
+  (NOTE_UPDATED rows keep the previous text in `fromValue`
+  for the record, the timeline says the notes changed).
+  Status codes are humanised with the shared labels;
+  conflict rule codes are removed from user view.
+- The assigned technician has no name in the data
+  `GET /jobs/:id` returns (only `assignedTechnicianId`),
+  so the detail page shows "Assigned technician ID" with
+  the id, or "Unassigned" — no name is invented. This
+  matches the create form, where dispatchers paste the
+  same id because no users-list endpoint exists.
+- The sticky technician bar keeps its existing place in
+  the page flow (after contact actions) and gains
+  `position: sticky; bottom:` styling, so the actions
+  stay at thumb reach while scrolling (docs/06 S21).
+  Completed/cancelled jobs now show their state in the
+  bar instead of the section vanishing.

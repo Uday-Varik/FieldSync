@@ -1,0 +1,32 @@
+/* Shared-notes styles (docs/17 §2). Tokens only — no hex
+   values. The panel border distinguishes the shared
+   document from the job-notes form above it. */
+
+.panel {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2);
+  padding: var(--space-4);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-card);
+  background: var(--color-surface);
+}
+
+.heading {
+  margin: 0;
+  font-size: var(--text-lg);
+}
+
+.status {
+  margin: 0;
+  font-size: var(--text-sm);
+  color: var(--color-text-muted);
+}
+
+.actions {
+  display: flex;
+}
+
+.message {
+  margin: 0;
+}

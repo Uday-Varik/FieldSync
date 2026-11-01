@@ -1,0 +1,38 @@
+/* New job styles (docs/17 §2). Tokens only — no hex
+   values. The form keeps its 480px width; the page
+   container follows the board/My Day padding pattern. */
+
+.page {
+  padding: var(--space-6) var(--space-4);
+}
+
+.textLink {
+  display: inline-flex;
+  align-items: center;
+  min-height: 44px;
+}
+
+.secondaryLink {
+  display: inline-flex;
+  align-items: center;
+  min-height: 44px;
+  padding: var(--space-2) var(--space-3);
+  border: 1px solid var(--color-border-strong);
+  border-radius: var(--radius-control);
+  background: var(--color-surface);
+  color: var(--color-ink);
+  font-weight: 600;
+  text-decoration: none;
+}
+
+@media (min-width: 1024px) {
+  .page {
+    padding-inline: var(--space-6);
+  }
+}
+
+@media (min-width: 1280px) {
+  .page {
+    padding-inline: var(--space-8);
+  }
+}

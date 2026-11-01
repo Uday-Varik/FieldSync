@@ -1,0 +1,68 @@
+/* Photo section styles (docs/17 §2). Tokens only — no hex
+   values. Two-column grid at tablet width and up (§2.4);
+   single column on phones. Pending (queued offline) photos
+   are marked with text, never colour alone. */
+
+.heading {
+  margin: 0 0 var(--space-4);
+  font-size: var(--text-xl);
+}
+
+.upload {
+  margin-bottom: var(--space-4);
+}
+
+.grid {
+  display: grid;
+  gap: var(--space-4);
+  margin: 0;
+  padding: 0;
+}
+
+@media (min-width: 720px) {
+  .grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+
+.figure {
+  margin: 0;
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2);
+  padding: var(--space-3);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-card);
+  background: var(--color-surface);
+}
+
+.photo {
+  width: 100%;
+  display: block;
+  border-radius: var(--radius-control);
+}
+
+.caption {
+  margin: 0;
+  font-size: var(--text-sm);
+}
+
+.pending {
+  font-weight: 600;
+}
+
+.unavailable {
+  margin: 0;
+  font-size: var(--text-sm);
+  color: var(--color-text-muted);
+}
+
+.empty,
+.message {
+  margin: 0 0 var(--space-4);
+  color: var(--color-text-muted);
+}
+
+.message {
+  color: var(--color-ink);
+}
