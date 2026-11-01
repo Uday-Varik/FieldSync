@@ -21,6 +21,15 @@ export default async function MyDayPage() {
   const today = new Date().toLocaleDateString('en-CA', { timeZone: 'America/Chicago' });
   const result = await fetchJobs(await getToken(), `date=${today}&limit=100`);
   if (result.error) {
+    if (result.errorCode === 'USER_NOT_LINKED') {
+      return (
+        <main style={{ padding: '2rem' }}>
+          <h1>My Day</h1>
+          <p>Your account isn&apos;t linked to a company yet.</p>
+          <p>How access works: first create an account (sign up), then a company admin must invite you and link your account. Signing in alone doesn&apos;t grant access — jobs appear only after your account is linked.</p>
+        </main>
+      );
+    }
     return (
       <main style={{ padding: '2rem' }}>
         <h1>My Day</h1>

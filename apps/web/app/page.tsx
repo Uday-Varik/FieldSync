@@ -34,7 +34,8 @@ export default async function Home() {
     return (
       <main style={{ padding: '2rem' }}>
         <h1>FieldSync</h1>
-        <p>Your Clerk account is not linked to a company yet. Company setup is the next Phase 1 screen.</p>
+        <p>Your account isn&apos;t linked to a company yet.</p>
+        <p>How access works: first create an account (sign up), then a company admin must invite you and link your account. Signing in alone doesn&apos;t grant access — jobs appear only after your account is linked.</p>
       </main>
     );
   }

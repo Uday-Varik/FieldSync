@@ -408,3 +408,17 @@ are not repeated here except where implementation changed them.
   production while server-side page loads worked. No
   credentials (Bearer tokens, no cookies). Verified live
   by preflight after the Fly redeploy.
+
+- Auth access messaging (2026-11-01): the web client now
+  preserves the API error code (errorCode in lib/api.ts)
+  and shows the sign-up/invite rules on USER_NOT_LINKED
+  instead of the generic "API unavailable" text (board,
+  My Day, job detail, homepage). The hard enforcement
+  already existed — the API guard returns 403
+  USER_NOT_LINKED for a valid Clerk token with no linked
+  company row, so nobody reaches company data without
+  signing up AND being linked by an invite. What was
+  missing was the client telling users the rules: every
+  error collapsed into "API unavailable", which hid a
+  refused account behind a downtime message. No auth
+  logic changed; only which message each outcome shows.

@@ -31,6 +31,15 @@ export default async function JobDetailPage({ params }: { params: { id: string }
     fetchMe(token),
   ]);
   if (jobRes.error) {
+    if (jobRes.errorCode === 'USER_NOT_LINKED') {
+      return (
+        <main style={{ padding: '2rem' }}>
+          <p>Your account isn&apos;t linked to a company yet.</p>
+          <p>How access works: first create an account (sign up), then a company admin must invite you and link your account. Signing in alone doesn&apos;t grant access — jobs appear only after your account is linked.</p>
+          <p><Link href="/board">Back to board</Link></p>
+        </main>
+      );
+    }
     return (
       <main style={{ padding: '2rem' }}>
         <p>Job not found, or the API is unavailable.</p>
